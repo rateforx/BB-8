@@ -1,0 +1,424 @@
+@import "./../../../node_modules/breakpoint-sass/stylesheets/breakpoint";
+
+$breakpoint-mobile: (max-width 568px) (orientation portrait);
+$breakpoint-mobile-landscape: (max-width 568px) (orientation landscape);
+$breakpoint-tablet: 569px 1280px;
+$breakpoint-desktop: min-width 1281px;
+
+html,body{
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  font-family: "proxima-nova", sans-serif;
+  background: black;
+}
+
+* {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+#guiContainer{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+canvas{
+  position: relative;
+  z-index: 1;
+}
+
+canvas:before{
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAD0lEQVQYV2NgYGD4zwACAAYEAQAVghy+AAAAAElFTkSuQmCC);
+  opacity: 0.8;
+  transition: opacity 0.5s ease-in;
+}
+
+
+#joinGame, #reconnect{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+#joinGame {
+  pointer-events: all;
+  opacity: 1;
+}
+
+button{
+
+  position: relative;
+  background-color: rgba(#68b2f8, 0.2);
+  padding: 0.2rem 1.8rem 0.1rem 1.8rem;
+  margin: 2rem auto;
+  font-size: 1.2rem;
+  transition: all 0.5s ease-out;
+  margin-right: 1.5rem;
+  border: 0;
+  color: white;
+  outline: none;
+  white-space: nowrap;
+
+  &:before{
+    content: "";
+    position: absolute;
+    z-index: 10;
+    left: -3rem;
+    top: -2.4rem;
+    width: 6rem;
+    height: 7rem;
+    background-image: url(assets/images/cta_glow_left.png);
+    background-repeat: no-repeat;
+    background-position: top;
+    background-size: auto;
+    pointer-events: none;
+  }
+
+  &:after{
+    content: "";
+    position: absolute;
+    z-index: 10;
+    right: -3rem;
+    top: -2.4rem;
+    width: 6rem;
+    height: 7rem;
+    background-image: url(assets/images/cta_glow_left.png);
+    background-repeat: no-repeat;
+    background-position: top;
+    background-size: auto;
+    transform: scaleX(-1);
+    pointer-events: none;
+  }
+
+  a{
+    width: 100%;
+    padding: 0.2rem 0.5rem;
+    color: #fff;
+    transition: all 0.1s ease-in;
+  }
+
+  &:hover{
+    background: rgba(#68b2f8, 0.4);
+    a{
+      padding: 0.2rem 0.8rem;
+    }
+  }
+}
+
+.lostGame #tryAgain{
+  opacity: 1;
+  pointer-events: all;
+}
+
+.hud{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20rem;
+  font-size: 12px;
+  padding: 1rem;
+  color: #fff;
+  font-family: arial, sans-serif;
+  opacity: 0;
+
+  transition: all 0.5s ease-in;
+}
+
+.scoreBoard{
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 9rem;
+  transform: translateX(-50%);
+  background-image: url(resources/images/scoreboard.svg);
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: 100%;
+  opacity: 0.7;
+
+
+  div{
+    position: absolute;
+    top: 0.6vw;
+    color: white;
+    font-size: 1.5vw;
+  }
+
+  .teamBlue{
+    left: 7%;
+  }
+
+  .teamRed{
+    right: 7%;
+  }
+}
+
+
+.breakButton, .gasButton{
+  pointer-events: none;
+  opacity: 0;
+
+  transition: all 0.5s ease-in;
+
+  background: #fff;
+  width: 4rem;
+  height: 4rem;
+  position: absolute;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  border: 3px solid #b2b1b5;
+  border-radius: 5rem;
+  font-size: 0.8rem;
+
+  &:before{
+    position: absolute;
+    color: #ff2f95;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+  }
+}
+
+.wheel{
+  display: none;
+  position: absolute;
+  left: 50%;
+  bottom: 1rem;
+  width: 4rem;
+  height: 4rem;
+  opacity: 0.6;
+  transform: translateX(-50%);
+
+  svg{
+    width: 100%;
+    height: 100%
+  }
+}
+
+.gasButton{
+  right: 0%;
+
+  &:before{
+    content: "GAS";
+  }
+}
+
+.breakButton{
+  left: 10%;
+
+  &:before{
+    content: "REVERSE";
+  }
+}
+
+
+.presentationContainer{
+  display: none;
+
+  div{
+    opacity: 0.6;
+    position: absolute;
+    bottom: 0;
+    font-size: 3rem;
+    color: white;
+    padding: 2rem;
+  }
+
+  .blueTeam{
+    left: 0;
+    background: #242b91;
+  }
+
+}
+
+body.gameActive{
+  .hud { opacity: 0.3;}
+  .score { opacity: 1;}
+  .offscreenIndicator{ opacity: 0.8}
+
+}
+
+body.touch.gameActive{
+  .gasButton, .breakButton {
+    opacity: 0.6;
+    pointer-events: all;
+  }
+  .wheel{
+    display: block;
+  }
+}
+
+body.presentation{
+  .presentationContainer {
+    display: block;
+  }
+
+  #joinGame{
+    display: none;
+  }
+}
+
+.disconnected{
+  #reconnect{
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  #tryAgain, #joinGame{
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+
+.lanceLink{
+  width: 8rem;
+  height: 2rem;
+  color: white;
+  display: block;
+  position: absolute;
+  right: 2rem;
+  bottom: 1rem;
+  background-image: url(https://cloud.githubusercontent.com/assets/3951311/24590486/aa78b3a0-17f6-11e7-887f-8357b6906b03.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center 18px;
+  padding-top: 4rem;
+  z-index: 100;
+  font-size: 0.6rem;
+  text-decoration: none;
+}
+
+body.touch .lanceLink{
+  width: 6rem;
+  height: 2rem;
+  top: -0.2rem;
+  right: 1rem;
+  padding-top: 3.5rem;
+}
+
+body.loading{
+  #joinGame{
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .loading{
+    opacity: 1;
+  }
+}
+
+div.loading{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+
+  width: 20rem;
+  height: 20rem;
+
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease-in;
+
+
+  .caption{
+    color: white;
+    text-align: center;
+  }
+}
+
+.spinner {
+  width: 150px;
+  height: 30px;
+  margin: 20px auto;
+}
+.ball {
+  height: 30px;
+  width: 30px;
+  float: left;
+  background: white;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+.ball-1 {
+  animation: jump3 1.8s infinite ease-out;
+}
+.ball-2 {
+  animation: jump2 1.8s infinite ease-out;
+}
+.ball-3 {
+  animation: jump1 1.8s infinite ease-out;
+}
+.ball-4 {
+  margin-right: 0;
+  animation: wipe 1.8s infinite cubic-bezier(0.5, 0, 0.5, 1);
+}
+@keyframes jump1 {
+  12% {
+    transform: translate(20px, -40px);
+    animation-timing-function: ease-in;
+  }
+  24% {
+    transform: translate(40px, 0);
+  }
+  100% {
+    transform: translate(40px, 0);
+  }
+}
+@keyframes jump2 {
+  12% {
+    transform: translate(0, 0);
+  }
+  24% {
+    transform: translate(20px, -40px);
+    animation-timing-function: ease-in;
+  }
+  36% {
+    transform: translate(40px, 0);
+  }
+  100% {
+    transform: translate(40px, 0);
+  }
+}
+@keyframes jump3 {
+  24% {
+    transform: translate(0, 0);
+  }
+  36% {
+    transform: translate(20px, -40px);
+    animation-timing-function: ease-in;
+  }
+  48% {
+    transform: translate(40px, 0);
+  }
+  100% {
+    transform: translate(40px, 0);
+  }
+}
+@keyframes wipe {
+  48% {
+    transform: translateX(-120px);
+  }
+  100% {
+    transform: translateX(-120px);
+  }
+}
