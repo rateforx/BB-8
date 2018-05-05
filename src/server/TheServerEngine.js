@@ -1,6 +1,6 @@
-const ServerEngine = require( 'lance-gg/es5/ServerEngine' );
+import ServerEngine from "lance-gg/src/ServerEngine";
 
-class TheServerEngine extends ServerEngine {
+export default class TheServerEngine extends ServerEngine {
 
     constructor( io, gameEngine, inputOptions ) {
         super( io, gameEngine, inputOptions );
@@ -39,5 +39,3 @@ class TheServerEngine extends ServerEngine {
         return statusString;
     }
 }
-
-module.exports = TheServerEngine;

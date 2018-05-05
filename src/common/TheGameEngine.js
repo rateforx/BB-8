@@ -1,7 +1,11 @@
-const GameEngine = require( 'lance/GameEngine' );
-const CannonPhysicsEngine = require( 'lance/physics/CannonPhysicsEngine' );
+// const GameEngine = require( 'lance-gg/src/GameEngine' );
+// const CannonPhysicsEngine = require( 'lance/physics/CannonPhysicsEngine' );
+//
+// const BB8 = require( './BB8' );
 
-const BB8 = require( './BB8' );
+import GameEngine from "lance-gg/src/GameEngine";
+import CannonPhysicsEngine from "lance-gg/src/physics/CannonPhysicsEngine";
+import BB8 from "./BB8";
 
 export default class TheGameEngine extends GameEngine {
 
@@ -9,7 +13,7 @@ export default class TheGameEngine extends GameEngine {
         super( options );
 
         this.log = [];
-        this.physicsEngine = new CannonPhysicsEngine( { gameEngine: this });
+        this.physicsEngine = new CannonPhysicsEngine( { gameEngine: this } );
 
         this.players = [];
 
@@ -52,9 +56,8 @@ export default class TheGameEngine extends GameEngine {
         super.processInput( inputData, playerId );
         let playerObj = this.world.queryObject( { playerId } );
         if ( playerObj ) {
-            
+
         }
     }
 
 }
-
