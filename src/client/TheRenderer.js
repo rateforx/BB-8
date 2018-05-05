@@ -1,5 +1,5 @@
 const THREE = require( 'three' );
-import Renderer from "lance-gg/src/render/Renderer";
+import Renderer from "lance/render/Renderer";
 
 require( '../lib/CannonDebugRenderer' );
 require( '../lib/OutlineShader' );

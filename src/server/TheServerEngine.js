@@ -1,4 +1,4 @@
-import ServerEngine from "lance-gg/src/ServerEngine";
+import ServerEngine from "lance/ServerEngine";
 
 export default class TheServerEngine extends ServerEngine {
 

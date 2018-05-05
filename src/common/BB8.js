@@ -1,6 +1,7 @@
-import PhysicalObject from 'lance-gg/src/serialize/PhysicalObject';
+import PhysicalObject from 'lance/serialize/PhysicalObject';
 
 const THREE = require( 'three/build/three.module' );
+
 const OBJLoader = require( 'three-obj-loader' );
 OBJLoader( THREE );
 
@@ -11,7 +12,7 @@ const Vec3 = require( 'cannon/src/math/Vec3' );
 const Quaternion = require( 'cannon/src/math/Quaternion' );
 
 const Cylinder = require( 'cannon/src/shapes/Cylinder' );
-const Body = require( 'cannon/src/objects/Body');
+const Body = require( 'cannon/src/objects/Body' );
 const Sphere = require( 'cannon/src/shapes/Sphere' );
 
 export default class BB8 extends PhysicalObject {

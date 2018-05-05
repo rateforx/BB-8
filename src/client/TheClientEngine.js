@@ -1,4 +1,4 @@
-import ClientEngine from "lance-gg/src/ClientEngine";
+import ClientEngine from "lance/ClientEngine";
 import TheRenderer from "./TheRenderer";
 const $ = require( 'jquery' );
 const ResourceManager = require( './ResourceManager' );

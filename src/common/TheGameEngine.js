@@ -1,10 +1,5 @@
-// const GameEngine = require( 'lance-gg/src/GameEngine' );
-// const CannonPhysicsEngine = require( 'lance/physics/CannonPhysicsEngine' );
-//
-// const BB8 = require( './BB8' );
-
-import GameEngine from "lance-gg/src/GameEngine";
-import CannonPhysicsEngine from "lance-gg/src/physics/CannonPhysicsEngine";
+import GameEngine from "lance/GameEngine";
+import CannonPhysicsEngine from "lance/physics/CannonPhysicsEngine";
 import BB8 from "./BB8";
 
 export default class TheGameEngine extends GameEngine {
@@ -59,5 +54,4 @@ export default class TheGameEngine extends GameEngine {
 
         }
     }
-
 }
