@@ -12,7 +12,7 @@ export default class TheGameEngine extends GameEngine {
 
         this.players = [];
 
-        this.on( 'server__init', this.gameInit.bind( this ) );
+        this.on( 'server__init', this.init );
     }
 
     start() {
@@ -24,6 +24,10 @@ export default class TheGameEngine extends GameEngine {
         super.step( isReenact, t, dt, physicsOnly );
 
         // todo update positions and stuff
+    }
+
+    init() {
+        // todo arena creation
     }
 
     registerClasses( serializer ) {

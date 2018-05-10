@@ -1,6 +1,7 @@
 import TheClientEngine from './TheClientEngine';
 import TheGameEngine from '../common/TheGameEngine';
-require('../../dist/resources/sass/main.scss');
+
+// require( '../../dist/resources/sass/main.scss' );
 
 // options sent to both game engine and client engine
 const options = {
@@ -17,7 +18,10 @@ const options = {
 };
 
 // create the singletons
-const gameEngine = new TheGameEngine(options);
-const clientEngine = new TheClientEngine(gameEngine, options);
+const gameEngine = new TheGameEngine( options );
+const clientEngine = new TheClientEngine( gameEngine, options );
 
-document.addEventListener('DOMContentLoaded', function(e) { clientEngine.start(); });
+document.addEventListener( 'DOMContentLoaded', () => { clientEngine.start(); } );
+
+window[ 'gameEngine' ] = gameEngine;
+window[ 'clientEngine' ] = clientEngine;

@@ -1,3 +1,6 @@
+const THREE = require( 'three/build/three' );
+const CANNON = require( 'cannon/build/cannon' );
+
 /* global CANNON,THREE,Detector */
 
 /**

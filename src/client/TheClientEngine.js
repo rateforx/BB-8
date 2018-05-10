@@ -1,7 +1,6 @@
 import ClientEngine from "lance/ClientEngine";
 import TheRenderer from "./TheRenderer";
 const $ = require( 'jquery' );
-const ResourceManager = require( './ResourceManager' );
 
 export default class TheClientEngine extends ClientEngine {
 
@@ -10,8 +9,6 @@ export default class TheClientEngine extends ClientEngine {
 
         this.gameEngine.on( 'client__preStep', this.preStep, this );
         this.gameEngine.on( 'client__postStep', this.postStep, this );
-
-        this.resourceManager = new ResourceManager();
     }
 
     start() {
@@ -81,4 +78,6 @@ export default class TheClientEngine extends ClientEngine {
             }
         }
     }
+
+    postStep() {}
 }

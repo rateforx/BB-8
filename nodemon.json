@@ -1,0 +1,11 @@
+{
+  "exec": "babel-node --presets es2015",
+  "env": {
+    "port": 80
+  },
+  "ignore": [
+    "src/client",
+    "src/lib",
+    "dist"
+  ]
+}

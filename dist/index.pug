@@ -1,29 +1,31 @@
-head
-    title Benis
-    script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.js")
-    style.
-        html, body {
-            padding: 0;
-            margin: 0;
-        }
+doctype html
+html(lang="en")
+    head
+        title Benis
+        link(rel='stylesheet', type='text/css', href='style.css')
+        script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.js")
 
-body.loading
-    script(src='bundle.js')
+    body.loading
+        script(src='bundle.js')
 
-    #guiContainer
-        button#joinGame Join Game
-        button#reconnect Reconnect
+        #viewport
 
-        .loading
-            .caption Loading...
-            .spinner
-                .ball.ball-1
-                .ball.ball-2
-                .ball.ball-3
-                .ball.ball-4
+        #guiContainer
+            button#joinGame Join Game
+            button#reconnect Reconnect
 
-        .hud
-            div Latency:
-                span.latencyData N/A
-            div Latency (avg):
-                span.averageLatencyData N/A
+            //-.loading
+                .caption Loading...
+                .spinner
+                    .ball.ball-1
+                    .ball.ball-2
+                    .ball.ball-3
+                    .ball.ball-4
+
+            .hud
+                #stats
+                #frameNum N/A
+                div Latency:
+                    span.latencyData N/A
+                div Latency (avg):
+                    span.averageLatencyData N/A
