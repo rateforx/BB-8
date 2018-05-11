@@ -38,12 +38,25 @@ export default class TheGameEngine extends GameEngine {
         this.addObjectToWorld( this.map );
     }
 
+    /**
+     * Checks if the TheGameEngine instance is on the server side.
+     * @returns {boolean}
+     */
+    isServer() {
+        return typeof window === 'undefined';
+    }
+
     registerClasses( serializer ) {
         serializer.registerClass( BB8 );
         serializer.registerClass( Crate );
         serializer.registerClass( Map );
     }
 
+    /**
+     * @param playerId
+     * @param team
+     * @returns {BB8}
+     */
     addPlayer( playerId, team ) {
         console.log( 'adding a new player ' + playerId );
 
@@ -68,6 +81,11 @@ export default class TheGameEngine extends GameEngine {
         }
     }
 
+    /**
+     *
+     * @param inputData
+     * @param playerId
+     */
     processInput( inputData, playerId ) {
         super.processInput( inputData, playerId );
         let playerObj = this.world.queryObject( { playerId } );

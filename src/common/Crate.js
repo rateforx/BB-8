@@ -35,8 +35,6 @@ export default class Crate extends PhysicalObject {
         this.class = Crate;
         this.gameEngine = gameEngine;
 
-        this.ready = this.ready !== undefined;
-
         this.health = 100;
     }
 
@@ -49,12 +47,14 @@ export default class Crate extends PhysicalObject {
             this.position.y,
             this.position.z,
         );
-        this.physicsObj.angularDamping = .1;
 
         // create 3D body
-        let gCrate = new THREE.BoxGeometry; // ( 1, 1, 1 )
-        let mCrate = new THREE.MeshLambertMaterial;
-        this.object3D = new THREE.Mesh( gCrate, mCrate );
+        this.renderer = gameEngine.renderer ? gameEngine.renderer.scene : null;
+        if ( this.scene ) {
+            let gCrate = new THREE.BoxGeometry; // ( 1, 1, 1 )
+            let mCrate = new THREE.MeshLambertMaterial;
+            this.object3D = new THREE.Mesh( gCrate, mCrate );
+        }
     }
 
      static loadResources( rm ) {

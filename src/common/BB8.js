@@ -40,9 +40,6 @@ export default class BB8 extends PhysicalObject {
         this.ready = this.ready !== undefined;
 
         this.health = 100;
-
-        this.addPhysicalBody();
-        this.addObject3D();
         // todo! on add to world
     }
 
@@ -64,17 +61,7 @@ export default class BB8 extends PhysicalObject {
 
         this.gameEngine.physicsEngine.world.addBody( pill );
 
-        pill.position.set(
-            this.position.x,
-            this.position.y,
-            this.position.z
-        );
-        pill.quaternion.set(
-            this.quaternion.x,
-            this.quaternion.y,
-            this.quaternion.z,
-            this.quaternion.w
-        );
+        this.refreshToPhysics();
 
         this.physicsObj = pill;
     }
@@ -110,9 +97,12 @@ export default class BB8 extends PhysicalObject {
     }
 
     onAddToWorld( gameEngine ) {
-        //todo check if server
-        gameEngine.renderer.addObject( this.object3D );
-        // todo placement?
+        this.addPhysicalBody();
+
+        this.renderer = gameEngine.renderer ? gameEngine.renderer.scene : null;
+        if ( this.scene ) {
+            this.addObject3D();
+        }
     }
 
     static loadResources( rm ) {

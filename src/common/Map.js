@@ -76,5 +76,7 @@ export default class Map extends PhysicalObject {
         this.textures.water1 = rm.loadTexture( 'water1.jpg', 'water1' );
         this.textures.water2 = rm.loadTexture( 'water2.jpg', 'water2' );
         this.textures.sand = rm.loadTexture( 'sand1.jpg', 'sand1' );
+
+        this.emit.ready
     }
 }
