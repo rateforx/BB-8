@@ -20,11 +20,15 @@ export default class ResourceManager {
 
         // this.colladaLoader = new ColladaLoader();
 
+        this.objectLoader = new THREE.ObjectLoader();
+        this.objectLoader.setPath( '' ); // todo dir for jsons?
+
         this.objLoader = new THREE.OBJLoader();
         this.objLoader.setPath( '/models/' );
 
         this.textures = [];
         this.models = [];
+        this.objects = [];
     }
 
     loadTexture( url, name ) {
@@ -57,8 +61,9 @@ export default class ResourceManager {
         this.objLoader.load(
             url,
             obj => {
-                this.models[ name ] = obj;
-                this.emit( name, this.models[ name ] );
+                if ( name !== undefined )
+                    this.models[ name ] = obj;
+                this.emit( name, obj );
             },
             req => {
                 let progress = Math.floor( req.loaded / req.total * 100 );
@@ -67,12 +72,31 @@ export default class ResourceManager {
         );
     }
 
+    loadObject( url, name ) {
+        this.objectLoader.load(
+            url,
+            obj => {
+                if ( name !== undefined )
+                    this.objects[ name ] = obj;
+                this.emit( name, obj );
+            },
+            req => {
+                let progress = Math.floor( req.loaded / req.total * 100 );
+                console.log( `Loading ${name}: ${progress}%` );
+            }
+        )
+    }
+
     getTexture( name ) {
         return this.textures[ name ];
     }
 
     getModel( name ) {
         return this.models[ name ];
+    }
+
+    getObject( name ) {
+        return this.objects[ name ];
     }
 
     assignEmitter() {

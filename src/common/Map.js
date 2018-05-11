@@ -1,5 +1,5 @@
 import Serializer from 'lance/serialize/Serializer';
-import PhysicalObject from "lance-gg/src/serialize/PhysicalObject";
+import PhysicalObject from 'lance/serialize/PhysicalObject';
 const THREE = require( 'three/build/three' );
 THREE.Reflector = require( '../lib/Reflector' );
 THREE.Refractor = require( '../lib/Refractor' );
@@ -7,29 +7,21 @@ THREE.Water = require( '../lib/Water2' );
 
 export default class Map extends PhysicalObject {
 
-    /*static get netScheme() {
-        return Object.assign({
-            id: Serializer
-        }, super.netScheme);
-    }*/
-
-    constructor( url, gameEngine ) {
+    constructor( gameEngine ) {
         super( gameEngine );
         this.gameEngine = gameEngine;
+        this.class = Map;
 
-        this.group = new THREE.Group();
-
-        this.addTerrain();
-        this.addOcean();
-        this.addGround();
+        this.position.set( 0, 0, 0 );
     }
 
-    getObject() {
-        return this.group;
-    }
+    // getObject() {
+    //     return this.group;
+    // }
 
     addTerrain () {
         // todo generate or load terrain from file
+        this.physicsObj = this.gameEngine.physicsEngine.addBox( 10, 10, 10, 0, 0 );
     }
 
     addGround() {
@@ -68,15 +60,21 @@ export default class Map extends PhysicalObject {
     }
 
     onAddToWorld( gameEngine ) {
+        this.gameEngine = gameEngine;
+        this.addTerrain();
 
+        this.position.set( 0, 0, 0 );
+
+        this.renderer = gameEngine.renderer ? gameEngine.renderer.scene : null;
+        if ( this.scene ) {
+            this.addOcean();
+            this.addGround();
+        }
     }
 
     static loadResources( rm ) {
-        this.resourceManager = rm;
-        this.textures = {};
-        // this.textures.water1 = rm.loadTexture( 'water1.jpg', 'water1' );
-        // this.textures.water2 = rm.loadTexture( 'water2.jpg', 'water2' );
-        // this.textures.sand = rm.loadTexture( 'sand1.jpg', 'sand1' );
-        this.ready = true;
+        this.textures.water1 = rm.loadTexture( 'water1.jpg', 'water1' );
+        this.textures.water2 = rm.loadTexture( 'water2.jpg', 'water2' );
+        this.textures.sand = rm.loadTexture( 'sand1.jpg', 'sand1' );
     }
 }

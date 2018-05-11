@@ -15,9 +15,16 @@ export default class Minimap {
         this.target = new THREE.WebGLRenderTarget( renderer.w, renderer.h, {
             anisotropy: 8,
         } );
+
+        // map with be shown on the screen
+        this.phone = renderer.resourceManager.getObject( 'phone' );
     }
 
     draw() {
         // todo minimap drawing
+    }
+
+    static loadResources( rm ) {
+        rm.loadObject( 'phone.json', 'phone' );
     }
 }

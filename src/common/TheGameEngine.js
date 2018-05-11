@@ -34,8 +34,7 @@ export default class TheGameEngine extends GameEngine {
     }
 
     init() {
-        // todo arena creation
-        this.map = new Map( '', this );
+        this.map = new Map( this );
         this.addObjectToWorld( this.map );
     }
 

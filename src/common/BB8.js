@@ -43,6 +43,7 @@ export default class BB8 extends PhysicalObject {
 
         this.addPhysicalBody();
         this.addObject3D();
+        // todo! on add to world
     }
 
     addPhysicalBody() {
@@ -109,6 +110,7 @@ export default class BB8 extends PhysicalObject {
     }
 
     onAddToWorld( gameEngine ) {
+        //todo check if server
         gameEngine.renderer.addObject( this.object3D );
         // todo placement?
     }
