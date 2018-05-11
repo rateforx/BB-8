@@ -1,4 +1,5 @@
 const EventEmitter = require( 'eventemitter3' );
+const $ = require( 'jquery' );
 
 // keyboard handling
 const keyCodeTable = {

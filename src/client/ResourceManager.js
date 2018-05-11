@@ -1,33 +1,30 @@
 const _ = require( 'underscore' );
+const EventEmitter = require( 'eventemitter4' );
 const THREE = require( 'three/build/three' );
 const OBJLoader = require( 'three-obj-loader' );
 OBJLoader( THREE );
 // const OBJLoader2 = require( 'wwobjloader2' );
-const ColladaLoader = require( 'three-collada-loader' );
-
+// const ColladaLoader = require( 'three-collada-loader' );
 THREE.CubeTextureLoader = require( 'three/src/loaders/CubeTextureLoader' ).CubeTextureLoader;
-
-const EventEmitter = require( 'eventemitter4' );
 
 export default class ResourceManager {
 
     constructor() {
+        this.assignEmitter();
 
         this.textureLoader = new THREE.TextureLoader();
-        this.textureLoader.setPath( '/resources/textures/' );
+        this.textureLoader.setPath( '/textures/' );
 
         this.cubeTextureLoader = new THREE.CubeTextureLoader();
-        this.cubeTextureLoader.setPath( '/resources/textures/skybox/' );
+        this.cubeTextureLoader.setPath( '/textures/skybox/' );
 
-        this.colladaLoader = new ColladaLoader();
+        // this.colladaLoader = new ColladaLoader();
 
         this.objLoader = new THREE.OBJLoader();
-        this.objLoader.setPath( '/resources/models/' );
+        this.objLoader.setPath( '/models/' );
 
         this.textures = [];
         this.models = [];
-
-        this.assignEmitter();
     }
 
     loadTexture( url, name ) {
@@ -44,13 +41,17 @@ export default class ResourceManager {
         return texture;
     }
 
-    /*loadCubeTexture( urls, name ) {
-        let texture = this.cubeTextureLoader.load( urls );
+    loadCubeTexture( url, name ) {
+        this.cubeTextureLoader.setPath( `/textures/skybox/${url}/` );
+
+        let texture = this.cubeTextureLoader.load(
+            [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ]
+        );
         if ( name !== undefined ) {
             this.textures[ name ] = texture;
         }
         return texture;
-    }*/
+    }
 
     loadObj( url, name ) {
         this.objLoader.load(

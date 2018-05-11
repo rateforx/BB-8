@@ -15,18 +15,22 @@ export default class TheServerEngine extends ServerEngine {
 
         socket.on( 'requestRestart', addPlayer );
         socket.on( 'requestMetaDataUpdate', () => {
-            this.updateMetaData( socket );
+            // this.updateMetaData( socket );
         });
         socket.on( 'keepAlive', () => {
             this.resetIdleTimeout( socket );
         } );
 
-        this.updateMetaData();
+        // this.updateMetaData();
     }
     onPlayerDisconnected( socketId, playerId ) {
         super.onPlayerDisconnected( socketId, playerId );
 
         // todo stuff
+    }
+
+    updateMetaData() {
+        // todo update metadata on the server
     }
 
     gameStatus( statusQuery ) {

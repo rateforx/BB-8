@@ -12,6 +12,7 @@
     "browserify": "^13.0.1",
     "cannon": "^0.6.2",
     "css-loader": "^0.26.1",
+    "dat.gui": "^0.7.2",
     "eventemitter3": "^1.2.0",
     "eventemitter4": "^0.2.4",
     "express": "^4.14.0",
@@ -40,9 +41,9 @@
   },
   "devDependencies": {
     "babelify": "^7.3.0",
+    "debug": "latest",
     "watchify": "^3.9.0",
-    "webpack-cli": "^2.1.2",
-    "debug": "latest"
+    "webpack-cli": "^2.1.2"
   },
   "scripts": {
     "start": "babel-node main.js --presets es2015",

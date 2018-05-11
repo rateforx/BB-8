@@ -1,6 +1,9 @@
 import GameEngine from "lance/GameEngine";
 import CannonPhysicsEngine from "lance/physics/CannonPhysicsEngine";
 import BB8 from "./BB8";
+import BB8Control from "./BB8Control";
+import Crate from "./Crate";
+import Map from "./Map";
 
 export default class TheGameEngine extends GameEngine {
 
@@ -9,10 +12,14 @@ export default class TheGameEngine extends GameEngine {
 
         this.log = [];
         this.physicsEngine = new CannonPhysicsEngine( { gameEngine: this } );
+        // todo bb8 control
+        // this.bb8Control = new BB8Control( {} );
 
+        // todo init meta
         this.players = [];
+        this.numPlayers = 0;
 
-        this.on( 'server__init', this.init );
+        this.on( 'server__init', this.init.bind( this ) );
     }
 
     start() {
@@ -28,18 +35,29 @@ export default class TheGameEngine extends GameEngine {
 
     init() {
         // todo arena creation
+        this.map = new Map( '', this );
+        this.addObjectToWorld( this.map );
     }
 
     registerClasses( serializer ) {
         serializer.registerClass( BB8 );
+        serializer.registerClass( Crate );
+        serializer.registerClass( Map );
     }
 
     addPlayer( playerId, team ) {
         console.log( 'adding a new player ' + playerId );
 
-        let player = new BB8( this, new Vec3( 0, 0, 0 ) );
+        let bb8 = new BB8( this, new Vec3( 0, 0, 0 ) );
+        bb8.playerId = playerId;
 
-        this.players.push( player );
+        this.addObjectToWorld( bb8 );
+        this.players.push( bb8 );
+        this.numPlayers++;
+
+        console.log( `New BB8 [${bb8.id}] for player [${playerId}]` );
+
+        return bb8;
     }
 
     removePlayer( playerId ) {
@@ -55,7 +73,7 @@ export default class TheGameEngine extends GameEngine {
         super.processInput( inputData, playerId );
         let playerObj = this.world.queryObject( { playerId } );
         if ( playerObj ) {
-
+            // todo process input
         }
     }
 }

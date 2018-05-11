@@ -37,7 +37,12 @@ export default class BB8 extends PhysicalObject {
         this.class = BB8;
         this.gameEngine = gameEngine;
 
+        this.ready = this.ready !== undefined;
+
         this.health = 100;
+
+        this.addPhysicalBody();
+        this.addObject3D();
     }
 
     addPhysicalBody() {
@@ -83,6 +88,7 @@ export default class BB8 extends PhysicalObject {
         this.material = new THREE.MeshPhysicalMaterial( {
             roughness: .12,
             metalness: .22,
+            color: `hsl( ${Math.random() * 360}, 100%, 90% )`,
         } );
         this.object3D.traverse( o => {
             if ( o.isMesh ) {
@@ -103,23 +109,26 @@ export default class BB8 extends PhysicalObject {
     }
 
     onAddToWorld( gameEngine ) {
-        this.scene = gameEngine.renderer ? gameEngine.renderer.scene : null;
-        this.addPhysicalBody();
-        this.addObject3D();
+        gameEngine.renderer.addObject( this.object3D );
+        // todo placement?
     }
 
     static loadResources( rm ) {
-        rm.loadModel( 'bb8/bb8.obj', 'bb8' );
+        rm.loadObj( 'bb8/bb8.obj', 'bb8' );
 
-        rm.loadTexture( 'body_BUMP.jpg', 'bb8-body_BUMP');
-        rm.loadTexture( 'body_DIFFUSE.jpg', 'bb8-body_DIFFUSE');
-        rm.loadTexture( 'body_DISPLACE.jpg', 'bb8-body_DISPLACE');
-        rm.loadTexture( 'body_EMMISIVE.jpg', 'bb8-body_EMMISIVE');
-        rm.loadTexture( 'ENV.jpg', 'bb8-ENV');
-        rm.loadTexture( 'head_BUMP.jpg', 'bb8-head_BUMP');
-        rm.loadTexture( 'head_DIFFUSE.jpg', 'bb8-head_DIFFUSE');
-        rm.loadTexture( 'METAL.jpg', 'bb8-METAL');
-        rm.loadTexture( 'ring_DIFFUSE.jpg', 'bb8-ring_DIFFUSE');
-        rm.loadTexture( 'top_DIFFUSE.jpg', 'bb8-top_DIFFUSE');
+        rm.loadTexture( 'bb8/body_BUMP.jpg', 'bb8-body_BUMP');
+        rm.loadTexture( 'bb8/body_DIFFUSE.jpg', 'bb8-body_DIFFUSE');
+        rm.loadTexture( 'bb8/body_DISPLACE.jpg', 'bb8-body_DISPLACE');
+        rm.loadTexture( 'bb8/body_EMMISIVE.jpg', 'bb8-body_EMMISIVE');
+        rm.loadTexture( 'bb8/ENV.jpg', 'bb8-ENV');
+        rm.loadTexture( 'bb8/head_BUMP.jpg', 'bb8-head_BUMP');
+        rm.loadTexture( 'bb8/head_DIFFUSE.jpg', 'bb8-head_DIFFUSE');
+        rm.loadTexture( 'bb8/METAL.jpg', 'bb8-METAL');
+        rm.loadTexture( 'bb8/ring_DIFFUSE.jpg', 'bb8-ring_DIFFUSE');
+        rm.loadTexture( 'bb8/top_DIFFUSE.jpg', 'bb8-top_DIFFUSE');
+
+        rm.once( 'bb8', () => {
+            this.ready = true;
+        })
     }
 }

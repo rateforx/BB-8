@@ -1,6 +1,10 @@
 import ClientEngine from "lance/ClientEngine";
 import TheRenderer from "./TheRenderer";
+import KeyboardControls from "./KeyboardControls";
+
 const $ = require( 'jquery' );
+const THREE = require( 'three/build/three' );
+THREE.OrbitControls = require( '../lib/OrbitControls' );
 
 export default class TheClientEngine extends ClientEngine {
 
@@ -20,9 +24,8 @@ export default class TheClientEngine extends ClientEngine {
             this.renderer.once( 'ready', this.onRendererReady, this );
         }
 
-        this.networkMonitor.on( 'RTTUpdate', e => {
-            this.renderer.updateHUD( e );
-        } );
+        // todo fix and enable hud updating
+        // this.networkMonitor.on( 'RTTUpdate', e => this.renderer.updateHUD( e ) );
     }
 
     connect() {
@@ -41,40 +44,34 @@ export default class TheClientEngine extends ClientEngine {
                 this.gameEngine.metaData = e;
                 this.renderer.onMetaDataUpdate();
             } );
-        })
+        } )
     }
 
     onRendererReady() {
         this.connect();
 
-        this.controls = new KeyboardControls( this.renderer );
+        // this.controls = new KeyboardControls( this.renderer );
 
-
-        $( '#joinGame' ).click( _ => {
-            this.socket.emit( 'requestRestart' );
-        });
-
-        $( '#reconnect' ).click( _ => {
-            window.location.reload();
-        });
+        $( '#joinGame' ).click( _ => this.socket.emit( 'requestRestart' ) );
+        $( '#reconnect' ).click( _ => window.location.reload() );
     }
 
     preStep() {
         if ( this.controls ) {
-            if (this.controls.activeInput.up) {
-                this.sendInput('up', { movement: true });
+            if ( this.controls.activeInput.up ) {
+                this.sendInput( 'up', { movement: true } );
             }
 
-            if (this.controls.activeInput.left) {
-                this.sendInput('left', { movement: true });
+            if ( this.controls.activeInput.left ) {
+                this.sendInput( 'left', { movement: true } );
             }
 
-            if (this.controls.activeInput.right) {
-                this.sendInput('right', { movement: true });
+            if ( this.controls.activeInput.right ) {
+                this.sendInput( 'right', { movement: true } );
             }
 
-            if (this.controls.activeInput.down) {
-                this.sendInput('down', { movement: true });
+            if ( this.controls.activeInput.down ) {
+                this.sendInput( 'down', { movement: true } );
             }
         }
     }

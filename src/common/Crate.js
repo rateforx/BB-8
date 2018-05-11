@@ -8,6 +8,7 @@ OBJLoader( THREE );
 
 const Utils = require( '../client/Utils' );
 
+const CANNON = require( 'cannon' );
 const Box = require( 'cannon/src/shapes/Box' );
 
 const MASS = 135; // kg
@@ -34,6 +35,8 @@ export default class Crate extends PhysicalObject {
         this.class = Crate;
         this.gameEngine = gameEngine;
 
+        this.ready = this.ready !== undefined;
+
         this.health = 100;
     }
 
@@ -54,10 +57,11 @@ export default class Crate extends PhysicalObject {
         this.object3D = new THREE.Mesh( gCrate, mCrate );
     }
 
-    static loadResources( rm ) {
+     static loadResources( rm ) {
         rm.loadTexture( 'crate/crate_DIFFUSE.jpg', 'crate-DIFFUSE' );
         rm.loadTexture( 'crate/crate_NORMAL.jpg', 'crate-NORMAL' );
         rm.loadTexture( 'crate/crate_SPECULAR.jpg', 'crate-SPECULAR' );
         rm.loadTexture( 'crate/crate_DISPLACE.jpg', 'crate-DISPLACE' );
+        this.ready = true;
     }
 };
