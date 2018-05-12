@@ -25,6 +25,6 @@ export default class Minimap {
     }
 
     static loadResources( rm ) {
-        rm.loadObject( 'phone.json', 'phone' );
+        rm.loadJSON( 'phone.json', 'phone' );
     }
 }

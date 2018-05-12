@@ -37,7 +37,8 @@
     "underscore": "latest",
     "url-loader": "^0.5.7",
     "webpack": "^3.8.1",
-    "wwobjloader2": "^2.4.0"
+    "wwobjloader2": "^2.4.0",
+    "xhr2": "^0.1.4"
   },
   "devDependencies": {
     "babelify": "^7.3.0",

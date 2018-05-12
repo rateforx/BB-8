@@ -18,22 +18,13 @@ const Sphere = require( 'cannon/src/shapes/Sphere' );
 
 export default class BB8 extends PhysicalObject {
 
-    static get netScheme() {
-        return Object.assign( {
-            playerId: { type: Serializer.TYPES.INT16 },
-            position: { type: Serializer.TYPES.CLASSINSTANCE },
-            quaternion: { type: Serializer.TYPES.CLASSINSTANCE },
-            velocity: { type: Serializer.TYPES.CLASSINSTANCE },
-            angularVelocity: { type: Serializer.TYPES.CLASSINSTANCE },
-            health: { type: Serializer.TYPES.INT8 }
-        } );
-    }
-
-    constructor( gameEngine, pos, rot ) {
-        super( gameEngine, null, {
-            position: pos,
-            quaternion: rot,
-        } );
+    /**
+     * @param {TheGameEngine} gameEngine
+     * @param {Object} options
+     * @param {Object} props
+     */
+    constructor( gameEngine, options, props ) {
+        super( gameEngine, options, props );
         this.class = BB8;
         this.gameEngine = gameEngine;
 
@@ -61,8 +52,6 @@ export default class BB8 extends PhysicalObject {
 
         this.gameEngine.physicsEngine.world.addBody( pill );
 
-        this.refreshToPhysics();
-
         this.physicsObj = pill;
     }
 
@@ -85,42 +74,14 @@ export default class BB8 extends PhysicalObject {
                 o.receiveShadows = true;
             }
         } );
+
+        this.gameEngine.renderer.addObject( this.object3D );
     }
 
-    refreshFromPhysics() {
-        super.refreshFromPhysics();
-
-        this.object3D.position.copy( this.position );
-        this.object3D.quaternion.copy( this.quaternion );
-        this.object3D.velocity.copy( this.velocity );
-        this.object3D.angularVelocity.copy( this.angularVelocity );
-    }
-
-    onAddToWorld( gameEngine ) {
-        this.addPhysicalBody();
-
-        this.renderer = gameEngine.renderer ? gameEngine.renderer.scene : null;
-        if ( this.scene ) {
+    onAddToWorld() {
+        if ( !this.gameEngine.isServer ) {
             this.addObject3D();
         }
-    }
-
-    static loadResources( rm ) {
-        rm.loadObj( 'bb8/bb8.obj', 'bb8' );
-
-        rm.loadTexture( 'bb8/body_BUMP.jpg', 'bb8-body_BUMP');
-        rm.loadTexture( 'bb8/body_DIFFUSE.jpg', 'bb8-body_DIFFUSE');
-        rm.loadTexture( 'bb8/body_DISPLACE.jpg', 'bb8-body_DISPLACE');
-        rm.loadTexture( 'bb8/body_EMMISIVE.jpg', 'bb8-body_EMMISIVE');
-        rm.loadTexture( 'bb8/ENV.jpg', 'bb8-ENV');
-        rm.loadTexture( 'bb8/head_BUMP.jpg', 'bb8-head_BUMP');
-        rm.loadTexture( 'bb8/head_DIFFUSE.jpg', 'bb8-head_DIFFUSE');
-        rm.loadTexture( 'bb8/METAL.jpg', 'bb8-METAL');
-        rm.loadTexture( 'bb8/ring_DIFFUSE.jpg', 'bb8-ring_DIFFUSE');
-        rm.loadTexture( 'bb8/top_DIFFUSE.jpg', 'bb8-top_DIFFUSE');
-
-        rm.once( 'bb8', () => {
-            this.ready = true;
-        })
+        this.addPhysicalBody();
     }
 }

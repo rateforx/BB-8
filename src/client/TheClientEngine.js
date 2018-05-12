@@ -25,7 +25,7 @@ export default class TheClientEngine extends ClientEngine {
         }
 
         // todo fix and enable hud updating
-        // this.networkMonitor.on( 'RTTUpdate', e => this.renderer.updateHUD( e ) );
+        this.networkMonitor.on( 'RTTUpdate', e => this.renderer.updateHUD( e ) );
     }
 
     connect() {

@@ -46,7 +46,15 @@ export default class TheRenderer extends Renderer {
         return super.init().then( () => {
 
             this.scene = new THREE.Scene();
-            this.scene.background = new THREE.Color( 0xff00ff ); // violet sky cause reasons
+            window.scene = this.scene;
+            this.scene.background = new THREE.Color( 0 );
+
+            this.resourceManager = new ResourceManager();
+            this.resourceManager.once( 'finished', () => {
+                this.emit('ready');
+                $( '#loading' ).remove();
+            } );
+            this.loadResources();
 
             this.updateViewportSize();
 
@@ -114,7 +122,7 @@ export default class TheRenderer extends Renderer {
                 let res = this.h < this.w ? this.h : this.w; // todo optimize
                 this.renderTarget = new THREE.WebGLRenderTarget( res, res, {
                     anisotropy: this.ANISOTROPY,
-                });
+                } );
 
                 let mSprite = new THREE.SpriteMaterial();
                 this.sprite = new THREE.Sprite( mSprite );
@@ -127,8 +135,6 @@ export default class TheRenderer extends Renderer {
 
             this.raycaster = new THREE.Raycaster();
 
-            this.resourceManager = new ResourceManager();
-
             this.stats = new Stats();
             $( '#stats' ).append( this.stats.dom );
 
@@ -139,7 +145,7 @@ export default class TheRenderer extends Renderer {
                 outlines: this.OUTLINE,
                 antialiasing: this.AA,
             };
-            this.gui.add( params, 'resolution', .1, 4 )
+            this.gui.add( params, 'resolution', .01, 2 )
                 .onFinishChange( value => {
                     this.RESOLUTION = value;
                     this.onResize();
@@ -152,16 +158,9 @@ export default class TheRenderer extends Renderer {
                 .onChange( value => this.OUTLINE = value );
             this.gui.add( params, 'antialiasing' )
                 .onChange( value => this.AA = value );
-            this.gui.open();
-
-            // todo load assets here
-
-            this.loadResources();
+            // this.gui.open();
 
             this.clientEngine.controls = this.controls = new THREE.OrbitControls( this.camera, document );
-
-            this.isReady = true;
-            this.emit( 'ready' );
             // $( 'body' ).removeClass( 'loading' );
         } );
     }
@@ -171,8 +170,8 @@ export default class TheRenderer extends Renderer {
      */
     draw() {
         // todo fix fps stats :(
-        // this.stats.update();
-        // this.frameNum++;
+        this.stats.update();
+        this.frameNum++;
 
         !this.OUTLINE
             ? this.renderer.render( this.scene, this.camera )
@@ -241,19 +240,21 @@ export default class TheRenderer extends Renderer {
     }
 
     loadResources() {
+        // scene
         this.scene.background = this.resourceManager.loadCubeTexture( 'sky2', 'skybox' );
-
+        // BB8
         this.resourceManager.loadObj( 'bb8/bb8.obj', 'bb8' );
-
-        Map.loadResources( this.resourceManager );
-        BB8.loadResources( this.resourceManager );
-        Crate.loadResources( this.resourceManager );
-
-        /*this.scene.traverse( o => {
-            if ( o.isMesh === true ) {
-                o.castShadow = true;
-                o.receiveShadow = true;
-            }
-        } );*/
+        // Map
+        this.resourceManager.loadTexture( 'water/water1.jpg', 'water1' );
+        this.resourceManager.loadTexture( 'water/water2.jpg', 'water2' );
+        this.resourceManager.loadTexture( 'sand/sand1_BUMP.jpg', 'sand1_BUMP' );
+        this.resourceManager.loadTexture( 'sand/sand1_DIFFUSE.jpg', 'sand1_DIFFUSE' );
+        this.resourceManager.loadTexture( 'sand/sand1_DISPLACE.jpg', 'sand1_DISPLACE' );
+        this.resourceManager.loadTexture( 'sand/sand1_NORMAL.jpg', 'sand1_NORMAL' );
+        // Crate
+        this.resourceManager.loadTexture( 'crate/crate_DIFFUSE.jpg', 'crate_DIFFUSE' );
+        this.resourceManager.loadTexture( 'crate/crate_NORMAL.jpg', 'crate_NORMAL' );
+        this.resourceManager.loadTexture( 'crate/crate_SPECULAR.jpg', 'crate_SPECULAR' );
+        this.resourceManager.loadTexture( 'crate/crate_DISPLACE.jpg', 'crate_DISPLACE' );
     }
 }

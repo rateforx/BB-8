@@ -4,9 +4,15 @@ import BB8 from "./BB8";
 import BB8Control from "./BB8Control";
 import Crate from "./Crate";
 import Map from "./Map";
+import MapLoader from "./MapLoader";
 
 export default class TheGameEngine extends GameEngine {
 
+    /**
+     *
+     * @filed renderer {TheRenderer}
+     * @param options
+     */
     constructor( options ) {
         super( options );
 
@@ -19,7 +25,21 @@ export default class TheGameEngine extends GameEngine {
         this.players = [];
         this.numPlayers = 0;
 
-        this.on( 'server__init', this.init.bind( this ) );
+        this._isServer = typeof window === 'undefined';
+
+        this.on( 'server__init', () => {
+            console.log( 'server__init emmited' );
+            this.init.bind( this );
+            //todo??
+            this.init();
+        } );
+
+        this.mapLoader = new MapLoader();
+    }
+
+
+    get isServer() {
+        return this._isServer;
     }
 
     start() {
@@ -34,16 +54,21 @@ export default class TheGameEngine extends GameEngine {
     }
 
     init() {
-        this.map = new Map( this );
-        this.addObjectToWorld( this.map );
-    }
+        console.log( 'GameEngine: initializing map' );
 
-    /**
-     * Checks if the TheGameEngine instance is on the server side.
-     * @returns {boolean}
-     */
-    isServer() {
-        return typeof window === 'undefined';
+        let map = 'terrain.json';
+        // if ( this.isServer ) {
+        //     // this.map = new Map( this, data );
+        //     // this.addObjectToWorld( this.map );
+        // } else {
+            this.mapLoader.on( map, data => {
+                let options = {};
+                let props = {};
+                this.map = new Map( this, data );
+                this.addObjectToWorld( this.map );
+            } );
+            this.mapLoader.loadMapData( map );
+        // }
     }
 
     registerClasses( serializer ) {
@@ -60,7 +85,7 @@ export default class TheGameEngine extends GameEngine {
     addPlayer( playerId, team ) {
         console.log( 'adding a new player ' + playerId );
 
-        let bb8 = new BB8( this, new Vec3( 0, 0, 0 ) );
+        let bb8 = new BB8( this );
         bb8.playerId = playerId;
 
         this.addObjectToWorld( bb8 );

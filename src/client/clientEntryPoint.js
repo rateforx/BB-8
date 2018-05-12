@@ -23,5 +23,5 @@ const clientEngine = new TheClientEngine( gameEngine, options );
 
 document.addEventListener( 'DOMContentLoaded', () => { clientEngine.start(); } );
 
-window[ 'gameEngine' ] = gameEngine;
-window[ 'clientEngine' ] = clientEngine;
+window.gameEngine = gameEngine;
+window.clientEngine = clientEngine;

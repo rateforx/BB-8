@@ -12,18 +12,33 @@ export default class ResourceManager {
     constructor() {
         this.assignEmitter();
 
-        this.textureLoader = new THREE.TextureLoader();
+        this.loadingManager = THREE.DefaultLoadingManager;
+        this.loadingManager.onProgress = ( url, itemsLoaded, itemsTotal ) => {
+            console.log( `Loading file: ${url} . Loaded ${itemsLoaded} of ${itemsTotal} files.` );
+        };
+        this.loadingManager.onLoad = () => {
+            this.emit( 'finished' );
+        };
+        this.loadingManager.onError = url => {
+            console.log( `There was an error loading ${url}` );
+        };
+
+        this.textureLoader = new THREE.TextureLoader( this.loadingManager );
         this.textureLoader.setPath( '/textures/' );
 
-        this.cubeTextureLoader = new THREE.CubeTextureLoader();
+        this.cubeTextureLoader = new THREE.CubeTextureLoader( this.loadingManager );
         this.cubeTextureLoader.setPath( '/textures/skybox/' );
 
-        // this.colladaLoader = new ColladaLoader();
+        // this.colladaLoader = new ColladaLoader( this.loadingManager ));
 
-        this.objectLoader = new THREE.ObjectLoader();
-        this.objectLoader.setPath( '' ); // todo dir for jsons?
+        // this.objectLoader = new THREE.ObjectLoader( this.loadingManager );
+        // this.objectLoader.setPath( '' );
 
-        this.objLoader = new THREE.OBJLoader();
+        this.jsonLoader = new THREE.JSONLoader( this.loadingManager );
+
+        this.fileLoader = new THREE.FileLoader( this.loadingManager );
+
+        this.objLoader = new THREE.OBJLoader( this.loadingManager );
         this.objLoader.setPath( '/models/' );
 
         this.textures = [];
@@ -64,25 +79,17 @@ export default class ResourceManager {
                 if ( name !== undefined )
                     this.models[ name ] = obj;
                 this.emit( name, obj );
-            },
-            req => {
-                let progress = Math.floor( req.loaded / req.total * 100 );
-                console.log( `Loading ${name}: ${progress}%` );
             }
         );
     }
 
-    loadObject( url, name ) {
-        this.objectLoader.load(
+    loadJSON( url, name ) {
+        this.jsonLoader.load(
             url,
             obj => {
                 if ( name !== undefined )
                     this.objects[ name ] = obj;
                 this.emit( name, obj );
-            },
-            req => {
-                let progress = Math.floor( req.loaded / req.total * 100 );
-                console.log( `Loading ${name}: ${progress}%` );
             }
         )
     }
