@@ -5,6 +5,8 @@ THREE.Reflector = require( '../lib/Reflector' );
 THREE.Refractor = require( '../lib/Refractor' );
 THREE.Water = require( '../lib/Water2' );
 const CANNON = require( 'cannon' );
+const Trimesh = require( 'cannon/src/shapes/Trimesh' );
+Object.sizeof = require( 'object-sizeof' );
 
 export default class Map extends PhysicalObject {
 
@@ -12,7 +14,9 @@ export default class Map extends PhysicalObject {
      * @param gameEngine {TheGameEngine}
      * @param options
      * @param props
-     * @param data vertices and faces describing a terrain highfield
+     * @param data {Object}
+     * @param data.vertices {Array} array of vertices describing highfield {Vec3}
+     * @param data.faces {Array} array of faces
      */
     constructor( gameEngine, options, props, data ) {
         super( gameEngine, options, props );
@@ -23,35 +27,14 @@ export default class Map extends PhysicalObject {
     }
 
     addTerrain () {
-        // todo fix the var names and organize things better
-        let resourceManager = this.gameEngine.renderer.resourceManager;
-
-        let terrainData = resourceManager.getObject( 'terrain' );
-        let vertices = terrain.vertices;
-        let faces = terrain.faces;
-
-        // create physics terrain highfield body from map data and add it to physics engine
-        let data = [];
-        for ( let i = 0; i < vertices.length; i++ ) {
-            if ( typeof data[ vertices[ i ].x ] === "undefined" ) {
-                data[ vertices[ i ].x ] = [];
-            }
-            data[ vertices[i].x ][ vertices[i].z ] = vertices[i].y;
-        }
-        let heightfieldShape = new CANNON.Heightfield( data );
-        this.physicsObj = new CANNON.Body();
-        this.physicsObj.addShape( heightfieldShape );
-
-        this.gameEngine.physicsEngine.world.addBody( this.terrain );
-
         // create the terrain model and add to maps object3D
         let gTerrain = new THREE.Geometry();
-        gTerrain.vertices = terrainData.vertices;
-        gTerrain.faces = terrainData.faces;
+        gTerrain.vertices = this.data.vertices;
+        gTerrain.faces = this.data.faces;
         // todo right material
         let mTerrain = new THREE.MeshNormalMaterial();
         let terrain = new THREE.Mesh( gTerrain, mTerrain );
-        // todo check if terrain 90deg flip needed
+        // todo check if terrain needs a 90deg flip
 
         this.object3D.add( terrain );
     }
@@ -92,7 +75,30 @@ export default class Map extends PhysicalObject {
     }
 
     addPhysicsBodies() {
-        this.physicsObj = this.gameEngine.physicsEngine.addSphere( 1, 0 );
+        // prepare trimesh data
+        let v = [];
+        for( let i = 0; i < this.data.vertices.length; i++ ) {
+            v.push( this.data.vertices[ i ].x );
+            v.push( this.data.vertices[ i ].y );
+            v.push( this.data.vertices[ i ].z );
+        }
+        let f = [];
+        for( let i = 0; i < this.data.faces.length; i++ ) {
+            f.push( this.data.faces[ i ].a );
+            f.push( this.data.faces[ i ].b );
+            f.push( this.data.faces[ i ].c );
+        }
+        console.log( 'loops have looped successfully' );
+
+        let shape = new Trimesh( v, f );
+        console.log( 'shape created' );
+
+        this.physicsObj = new CANNON.Body();
+        this.physicsObj.addShape( shape );
+        console.log( 'body created' );
+        // console.log( 'Terrain physicsObj: ' + Object.sizeof( this.physicsObj ) );
+
+        this.gameEngine.physicsEngine.world.addBody( this.physicsObj );
     }
 
     onAddToWorld() {
@@ -102,8 +108,10 @@ export default class Map extends PhysicalObject {
             this.addOcean();
             this.addGround();
             this.addTerrain();
-            // add map to scene
+            // add models
             this.gameEngine.renderer.addObject( this.object3D );
         }
+        // conserve memory!
+        delete this.data;
     }
 }

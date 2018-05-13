@@ -5,16 +5,21 @@ THREE.FileLoader = require( '../lib/FileLoader' );
 
 export default class MapLoader {
 
-    constructor() {
+    constructor( isServer ) {
         this.assignEmitter();
         this.loader = new THREE.FileLoader( THREE.DefaultLoadingManager );
-        this.loader.setPath( '/maps/' );
+        // this.loader.setPath( '/maps/' );
         this.mapsData = [];
+        this.isServer = isServer;
     }
 
     loadMapData( name ) {
+        let url = '/maps/' + name;
+        if ( this.isServer) {
+            url = `http://localhost:${process.env.PORT}/maps/${name}`;
+        }
         this.loader.load(
-            name,
+            url,
             data => {
                 let object = JSON.parse( data );
                 if ( name !== undefined ) {
@@ -31,4 +36,4 @@ export default class MapLoader {
         // call the init method of the emitter to warm it up and apply the lube
         EventEmitter.prototype.init.call( this );
     }
-}
+};

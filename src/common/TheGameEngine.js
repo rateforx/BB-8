@@ -18,8 +18,10 @@ export default class TheGameEngine extends GameEngine {
 
         this.log = [];
         this.physicsEngine = new CannonPhysicsEngine( { gameEngine: this } );
-        // todo bb8 control
-        // this.bb8Control = new BB8Control( {} );
+        CANNON = this.physicsEngine.CANNON;
+
+        this.bb8Control = new BB8Control( {CANNON} );
+
 
         // todo init meta
         this.players = [];
@@ -28,13 +30,11 @@ export default class TheGameEngine extends GameEngine {
         this._isServer = typeof window === 'undefined';
 
         this.on( 'server__init', () => {
-            console.log( 'server__init emmited' );
-            this.init.bind( this );
-            //todo??
-            this.init();
+            // this.init.bind( this );
+            this.init.call( this );
         } );
 
-        this.mapLoader = new MapLoader();
+        this.mapLoader = new MapLoader( this.isServer );
     }
 
 
@@ -54,21 +54,15 @@ export default class TheGameEngine extends GameEngine {
     }
 
     init() {
-        console.log( 'GameEngine: initializing map' );
-
-        let map = 'terrain.json';
-        // if ( this.isServer ) {
-        //     // this.map = new Map( this, data );
-        //     // this.addObjectToWorld( this.map );
-        // } else {
-            this.mapLoader.on( map, data => {
-                let options = {};
-                let props = {};
-                this.map = new Map( this, data );
-                this.addObjectToWorld( this.map );
-            } );
-            this.mapLoader.loadMapData( map );
-        // }
+        console.log( 'Loading map' );
+        let mapName = 'terrain.json';
+        this.mapLoader.on( mapName, data => {
+            let options = {};
+            let props = {};
+            this.map = new Map( this, options, props, data );
+            this.addObjectToWorld( this.map );
+        } );
+        this.mapLoader.loadMapData( mapName );
     }
 
     registerClasses( serializer ) {

@@ -22,6 +22,7 @@
     "lance-gg": "lance-gg/lance#develop",
     "node-sass": "^4.9.0",
     "null-loader": "^0.1.1",
+    "object-sizeof": "^1.2.0",
     "pug": "^2.0.3",
     "query-string": "^4.2.3",
     "raw-loader": "^0.5.1",

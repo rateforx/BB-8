@@ -310,5 +310,4 @@ Object.assign( FileLoader.prototype, {
 
 } );
 
-
 module.exports = FileLoader;
