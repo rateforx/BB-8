@@ -23,7 +23,7 @@ export default class TheGameEngine extends GameEngine {
         CANNON = this.physicsEngine.CANNON;
 
         this.bb8Control = new BB8Control( { CANNON } );
-        this.mapLoader = new MapLoader( this.isServer );
+        this.mapLoader = new MapLoader( this );
 
         // todo init meta
         this.numPlayers = 0;
@@ -36,8 +36,7 @@ export default class TheGameEngine extends GameEngine {
             this.renderer = {}; // redundant?
         }
 
-        // todo test loading map on both client and server
-        // todo try without adding it as a lance object
+        this.loadMapData();
         this.on( 'server__init', () => {
             // this.init.bind( this );
             this.init.call( this );
@@ -71,17 +70,18 @@ export default class TheGameEngine extends GameEngine {
         // todo kill check?
     }
 
-    init() {
+    loadMapData() {
         console.log( 'Loading map' );
         let mapName = 'terrain';
         this.mapLoader.on( mapName, data => {
-            let options = {};
-            let props = {};
             Map.setData( data );
-            this.map = new Map( this, options, props );
-            this.addObjectToWorld( this.map );
-        } );
+        });
         this.mapLoader.loadMapData( mapName );
+    }
+
+    init() {
+        this.map = new Map( this );
+        this.addObjectToWorld( this.map );
     }
 
     registerClasses( serializer ) {

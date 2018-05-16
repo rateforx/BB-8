@@ -32,12 +32,16 @@ export default class Map extends PhysicalObject {
         super( gameEngine, options, props );
         this.gameEngine = gameEngine;
         this.class = Map;
-        // this.vertices = [];
-        // this.faces = [];
+        this.vertices = [];
+        this.faces = [];
 
         if ( typeof Map.data !== 'undefined' ) {
             this.vertices = Map.data.vertices;
             this.faces = Map.data.faces;
+            // if ( gameEngine.isServer() ) {
+            //     console.log( Map.data.vertices );
+            //     console.log( Map.data.faces );
+            // }
         }
     }
 
@@ -52,17 +56,19 @@ export default class Map extends PhysicalObject {
     addTerrain () {
         // create the terrain model and add to maps object3D
         let gTerrain = new THREE.Geometry();
+        gTerrain.name = 'gTerrain';
 
-        for ( let i = 0; i < Map.data.vertices.length; i += 3 ) {
-            gTerrain.vertices.push( new THREE.Vector3( Map.data.vertices[ i ] ) );
-            gTerrain.vertices.push( new THREE.Vector3( Map.data.vertices[ i + 1 ] ) );
-            gTerrain.vertices.push( new THREE.Vector3( Map.data.vertices[ i + 2 ] ) );
+        for ( let i = 0; i < this.vertices.length; i += 3 ) {
+            let x = this.vertices[ i ];
+            let y = this.vertices[ i + 1 ];
+            let z = this.vertices[ i + 2 ];
+            gTerrain.vertices.push( new THREE.Vector3( x, y, z ) );
         }
 
-        for ( let i = 0; i < Map.data.faces.length; i += 3 ) {
-            let a = Map.data.faces[ i ];
-            let b = Map.data.faces[ i + 1 ];
-            let c = Map.data.faces[ i + 2 ];
+        for ( let i = 0; i < this.faces.length; i += 3 ) {
+            let a = this.faces[ i ];
+            let b = this.faces[ i + 1 ];
+            let c = this.faces[ i + 2 ];
             gTerrain.faces.push( new THREE.Face3( a, b, c ) );
         }
 
@@ -71,7 +77,9 @@ export default class Map extends PhysicalObject {
 
         // todo right material
         let mTerrain = new THREE.MeshNormalMaterial();
+        mTerrain.name = 'mTerrain';
         let terrain = new THREE.Mesh( gTerrain, mTerrain );
+        terrain.name = 'Terrain';
         // todo check if terrain needs a 90deg flip
 
         this.object3D.add( terrain );
@@ -81,13 +89,15 @@ export default class Map extends PhysicalObject {
         let resourceManager = this.gameEngine.renderer.resourceManager;
 
         let gGround = new THREE.PlaneBufferGeometry( 100, 100 );
+        gGround.name = 'gGround';
         let mGround = new THREE.MeshPhongMaterial( {
-            name: 'sand',
+            name: 'mGround',
             map: resourceManager.getTexture( 'sand1' ),
         } );
         let ground = new THREE.Mesh( gGround, mGround );
 
         ground.rotation.x = Math.PI / -2;
+        ground.name = 'Ground';
 
         this.object3D.add( ground );
     }
@@ -96,6 +106,7 @@ export default class Map extends PhysicalObject {
         let resourceManager = this.gameEngine.renderer.resourceManager;
 
         let gWater = new THREE.PlaneBufferGeometry( 100, 100 );
+        gWater.name = 'gWater';
         this.water = new THREE.Water( gWater, {
             color: 0xc8ebff,
             scale: 1,
@@ -108,12 +119,14 @@ export default class Map extends PhysicalObject {
 
         this.water.position.y = .2;
         this.water.rotation.x = Math.PI / -2;
+        this.water.material.name = 'mWater';
+        this.water.name = 'Water';
 
         this.object3D.add( this.water );
     }
 
     addPhysicsBodies () {
-        let shape = new Trimesh( Map.data.vertices, Map.data.faces );
+        let shape = new Trimesh( this.vertices, this.faces );
 
         this.physicsObj = new CANNON.Body();
         this.physicsObj.addShape( shape );
@@ -137,7 +150,13 @@ export default class Map extends PhysicalObject {
     }
 
     toString () {
-        return `Map::${super.toString()}`;
+        let p = this.position.toString();
+        let v = this.velocity.toString();
+        let q = this.quaternion.toString();
+        let a = this.angularVelocity.toString();
+        let vc = this.vertices.length.toString();
+        let fc = this.faces.length.toString();
+        return `Map::phyObj[${this.id}] player${this.playerId} Pos=${p} Vel=${v} Dir=${q} AVel=${a} Vc=${vc} Fc=${fc}`;
     }
 
     destroy () {

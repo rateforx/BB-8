@@ -118,8 +118,7 @@ export default class TheRenderer extends Renderer {
             this.stats = new Stats();
             $( '#stats' ).append( this.stats.dom );
 
-            //this.clientEngine.controls = this.controls = new THREE.OrbitControls( this.camera, document );
-            // $( 'body' ).removeClass( 'loading' );
+            this.orbitControls = new THREE.OrbitControls( this.camera, document );
         } );
     }
 

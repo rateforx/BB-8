@@ -5,11 +5,14 @@ THREE.FileLoader = require( '../lib/FileLoader' );
 
 export default class MapLoader {
 
-    constructor( isServer ) {
+    /**
+     * @param gameEngine {TheGameEngine}
+     */
+    constructor( gameEngine ) {
         this.assignEmitter();
         this.loader = new THREE.FileLoader( THREE.DefaultLoadingManager );
         this.maps = [];
-        this.isServer = isServer;
+        this.gameEngine = gameEngine;
     }
 
     /*loadMapJson( name ) {
@@ -31,9 +34,10 @@ export default class MapLoader {
     }*/
 
     loadMapData( name ) {
-        let url = '/maps/' + name;
-        if ( this.isServer ) {
-            url = `http://localhost:${process.env.PORT}/maps/${name}.txt`;
+        let url = `/maps/${name}.txt`;
+        if ( this.gameEngine.isServer() ) {
+            // url = `http://localhost:${process.env.PORT}/maps/${name}.txt`;
+            url = `http://localhost:80/maps/${name}.txt`;
         }
         console.log( `Getting map data from ${url}` );
         this.loader.load(
@@ -62,13 +66,17 @@ export default class MapLoader {
         let vStrings = splitted[0];
         let fStrings = splitted[1];
 
-        let v = vStrings.split( ',' );
-        let f = fStrings.split( ',' );
+        let av = vStrings.split( ',' );
+        let af = fStrings.split( ',' );
         // for ( let i = 0; i < v.length; i++ ) v[ i ] = +v[ i ];
         // for ( let i = 0; i < f.length; i++ ) f[ i ] = +f[ i ];
 
-        v = new Float32Array( v );
-        f = new Int32Array( f );
+        // v = new Float32Array( v );
+        // f = new Int32Array( f );
+        let v = [];
+        let f = [];
+        for ( let i = 0; i < av.length; i++ ) v.push( +av[i] );
+        for ( let i = 0; i < af.length; i++ ) f.push( +af[i] );
 
         // console.log( v );
         // console.log( f );
