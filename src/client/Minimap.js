@@ -8,11 +8,11 @@ export default class Minimap {
         // topdown ortho camera
         this.camera = new THREE.OrthographicCamera(
             // height and width swapped on purpose
-            renderer.h / -2, renderer.h / 2,
-            renderer.w / 2, renderer.w / -2,
-            1, 1000
+            -637.5, 637.5,
+            637.5, -637.5,
+            1, 10000
         );
-        this.camera.position.set( 0, 10, 0 );
+        this.camera.position.set( 0, 1000, 0 );
         this.camera.lookAt( renderer.scene.position );
         this.ZOOM = 10;
         this.camera.zoom = this.ZOOM;

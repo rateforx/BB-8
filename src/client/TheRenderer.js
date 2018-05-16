@@ -30,7 +30,7 @@ export default class TheRenderer extends Renderer {
         this.AA = true;
         this.SHADOW = 2048;
         this.CANNON = false;
-        this.DEBUG = true;
+        // this.DEBUG = true;
         this.OUTLINE = true;
         this.BLUR = false;
         this.RESOLUTION = 1; // must be greater than 0, more than 1 is overkill
@@ -66,22 +66,16 @@ export default class TheRenderer extends Renderer {
                 60, // fov
                 this.w / this.h, // aspect
                 .1, // near
-                1000 // far
+                5000 // far
             );
             this.add( this.camera );
             this.camera.position.set( 10, 10, 10 );
             this.camera.lookAt( this.scene.position );
 
-            if ( this.DEBUG ) {
-                this.axesHelper = new THREE.AxesHelper( 50 );
-                this.add( this.axesHelper );
-
-                // this.gridHelper = new THREE.GridHelper( 100, 20 );
-                // this.addObject( this.gridHelper );
-
-                this.polarGridHelper = new THREE.PolarGridHelper( 50, 24, 5, 16 );
-                this.add( this.polarGridHelper );
-            }
+            // point light
+            let pointLight = new THREE.PointLight( 'white', 1, 0, 2 );
+            pointLight.position.set( 450, 2000, 450 );
+            scene.add( pointLight );
 
             this.renderer = !this.CANNON
                 ? new THREE.WebGLRenderer( { antialias: this.AA } )

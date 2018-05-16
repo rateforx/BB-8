@@ -5,6 +5,10 @@ import BB8Control from "./BB8Control";
 import Crate from "./Crate";
 import Map from "./Map";
 import MapLoader from "./MapLoader";
+import Spawner from "./Spawner";
+
+const Material = require( 'cannon/src/material/Material' );
+const ContactMaterial = require( 'cannon/src/material/ContactMaterial' );
 
 let CANNON = null;
 
@@ -18,14 +22,14 @@ export default class TheGameEngine extends GameEngine {
         super( options );
 
         this.log = [];
-        this.physicsEngine = new CannonPhysicsEngine( { gameEngine: this } );
-        this.physicsEngine.world.gravity.set( 0, -9.81, 0 );
-        CANNON = this.physicsEngine.CANNON;
+
+        this.initPhysicsEngine();
+
+        this.spawner = new Spawner( this );
 
         this.bb8Control = new BB8Control( { CANNON } );
         this.mapLoader = new MapLoader( this );
 
-        // todo init meta
         this.numPlayers = 0;
         this.metaData = {
             players: [],
@@ -61,7 +65,7 @@ export default class TheGameEngine extends GameEngine {
     step( isReenact, t, dt, physicsOnly ) {
         super.step( isReenact, t, dt, physicsOnly );
 
-        this.world.forEachObject( (id, obj) => {
+        this.world.forEachObject( ( id, obj ) => {
             if ( obj.class === BB8 ) {
                 obj.adjustMovement();
             }
@@ -75,7 +79,7 @@ export default class TheGameEngine extends GameEngine {
         let mapName = 'terrain';
         this.mapLoader.on( mapName, data => {
             Map.setData( data );
-        });
+        } );
         this.mapLoader.loadMapData( mapName );
     }
 
@@ -105,6 +109,10 @@ export default class TheGameEngine extends GameEngine {
             return existingBB8;
         }
 
+        let options = {};
+        let props = {
+            position: this.spawner.getSpawnpoint(),
+        };
         let bb8 = new BB8( this );
         bb8.playerId = playerId;
         // bb8.team = team;
@@ -135,14 +143,38 @@ export default class TheGameEngine extends GameEngine {
     processInput( inputData, playerId ) {
         super.processInput( inputData, playerId );
         let playerObj = this.world.queryObject( { playerId } );
+        // if ( playerObj ) {
+        //     if ( [ 'up', 'down' ].includes( inputData.input ) ) {
+        //         this.bb8Control.accelerate( playerObj, inputData.input );
+        //     }
+        //     if ( [ 'left', 'right' ].includes( inputData.input ) ) {
+        //         this.bb8Control.turn( playerObj, inputData.input );
+        //     }
+        //     playerObj.refreshFromPhysics();
+        // }
+
         if ( playerObj ) {
-            if ( [ 'up', 'down' ].includes( inputData.input ) ) {
-                this.bb8Control.accelerate( playerObj, inputData.input );
+            if ( [ 'up', 'down', 'left', 'right', ].includes( inputData.input ) ) {
+                this.bb8Control.controlVehicle( playerObj, inputData.input );
             }
-            if ( [ 'left', 'right' ].includes( inputData.input ) ) {
-                this.bb8Control.turn( playerObj, inputData.input );
-            }
-            playerObj.refreshFromPhysics();
         }
+    }
+
+    initPhysicsEngine() {
+        this.physicsEngine = new CannonPhysicsEngine( { gameEngine: this } );
+        this.physicsEngine.world.gravity.set( 0, -9.81, 0 );
+
+        CANNON = this.physicsEngine.CANNON;
+
+        let groundMaterial = new Material( 'GroundMaterial' );
+        let wheelMaterial = new Material( 'WheelMaterial' );
+        let contactMaterial = new ContactMaterial( groundMaterial, wheelMaterial, {
+            friction: 0.3,
+            restitution: .01,
+        } );
+
+        this.physicsEngine.world.addMaterial( groundMaterial );
+        this.physicsEngine.world.addMaterial( wheelMaterial );
+        this.physicsEngine.world.addContactMaterial( contactMaterial );
     }
 }

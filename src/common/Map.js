@@ -7,10 +7,11 @@ THREE.Refractor = require( '../lib/Refractor' );
 THREE.Water = require( '../lib/Water2' );
 const CANNON = require( 'cannon' );
 const Trimesh = require( 'cannon/src/shapes/Trimesh' );
+const Material = require( 'cannon/src/material/Material' );
 
 export default class Map extends PhysicalObject {
 
-    static get netScheme () {
+    static get netScheme() {
         return Object.assign( {
             vertices: {
                 type: Serializer.TYPES.LIST,
@@ -28,7 +29,7 @@ export default class Map extends PhysicalObject {
      * @param options
      * @param props
      */
-    constructor ( gameEngine, options, props ) {
+    constructor( gameEngine, options, props ) {
         super( gameEngine, options, props );
         this.gameEngine = gameEngine;
         this.class = Map;
@@ -53,7 +54,7 @@ export default class Map extends PhysicalObject {
         Map.data = data;
     }
 
-    addTerrain () {
+    addTerrain() {
         // create the terrain model and add to maps object3D
         let gTerrain = new THREE.Geometry();
         gTerrain.name = 'gTerrain';
@@ -76,38 +77,48 @@ export default class Map extends PhysicalObject {
         gTerrain.computeFaceNormals();
 
         // todo right material
-        let mTerrain = new THREE.MeshNormalMaterial();
+        let mTerrain = new THREE.MeshToonMaterial( {
+            color: 0x333333,
+        });
         mTerrain.name = 'mTerrain';
+
         let terrain = new THREE.Mesh( gTerrain, mTerrain );
         terrain.name = 'Terrain';
-        // todo check if terrain needs a 90deg flip
+        terrain.position.set( 0, 90, 0 );
+        terrain.rotation.x = -Math.PI / 2;
+        terrain.scale.setScalar( 1 );
 
         this.object3D.add( terrain );
     }
 
-    addGround () {
+    addGround() {
         let resourceManager = this.gameEngine.renderer.resourceManager;
 
         let gGround = new THREE.PlaneBufferGeometry( 100, 100 );
         gGround.name = 'gGround';
-        let mGround = new THREE.MeshPhongMaterial( {
+        let mGround = new THREE.MeshPhysicalMaterial( {
             name: 'mGround',
-            map: resourceManager.getTexture( 'sand1' ),
+            map: resourceManager.getTexture( 'sand1_DIFFUSE' ),
+            bumpMap: resourceManager.getTexture( 'sand1_BUMP' ),
+            displaceMap: resourceManager.getTexture( 'sand1_DISPLACE' ),
+            normalMap: resourceManager.getTexture( 'sand1_NORMAL' ),
         } );
         let ground = new THREE.Mesh( gGround, mGround );
 
-        ground.rotation.x = Math.PI / -2;
         ground.name = 'Ground';
+        ground.position.set( 0, 0, 0 );
+        ground.rotation.x = -Math.PI / 2;
+        ground.scale.setScalar( 100 );
 
         this.object3D.add( ground );
     }
 
-    addOcean () {
+    addWater() {
         let resourceManager = this.gameEngine.renderer.resourceManager;
 
         let gWater = new THREE.PlaneBufferGeometry( 100, 100 );
         gWater.name = 'gWater';
-        this.water = new THREE.Water( gWater, {
+        let water = new THREE.Water( gWater, {
             color: 0xc8ebff,
             scale: 1,
             flowDirection: new THREE.Vector2( 1, 1 ),
@@ -117,15 +128,16 @@ export default class Map extends PhysicalObject {
             normalMap1: resourceManager.getTexture( 'water2' ),
         } );
 
-        this.water.position.y = .2;
-        this.water.rotation.x = Math.PI / -2;
-        this.water.material.name = 'mWater';
-        this.water.name = 'Water';
+        water.position.y = 1;
+        water.rotation.x = -Math.PI / 2;
+        water.scale.setScalar( 100 );
+        water.material.name = 'mWater';
+        water.name = 'Water';
 
-        this.object3D.add( this.water );
+        this.object3D.add( water );
     }
 
-    addPhysicsBodies () {
+    addPhysicsBodies() {
         let shape = new Trimesh( this.vertices, this.faces );
 
         this.physicsObj = new CANNON.Body();
@@ -134,22 +146,22 @@ export default class Map extends PhysicalObject {
         this.gameEngine.physicsEngine.world.addBody( this.physicsObj );
     }
 
-    onAddToWorld () {
+    onAddToWorld() {
         // if ( this.gameEngine.isServer ) {
-            this.addPhysicsBodies();
         if ( !this.gameEngine.isServer() ) {
-        // } else {
+            // } else {
             this.object3D = new THREE.Object3D();
             // prepare models
-            this.addOcean();
+            this.addWater();
             this.addGround();
             this.addTerrain();
             // add models
             this.gameEngine.renderer.add( this.object3D );
         }
+        this.addPhysicsBodies();
     }
 
-    toString () {
+    toString() {
         let p = this.position.toString();
         let v = this.velocity.toString();
         let q = this.quaternion.toString();
@@ -159,7 +171,7 @@ export default class Map extends PhysicalObject {
         return `Map::phyObj[${this.id}] player${this.playerId} Pos=${p} Vel=${v} Dir=${q} AVel=${a} Vc=${vc} Fc=${fc}`;
     }
 
-    destroy () {
+    destroy() {
         this.gameEngine.physicsEngine.removeObject( this.physicsObj );
         this.gameEngine.renderer.remove( this.object3D );
     }

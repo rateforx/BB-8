@@ -16,6 +16,7 @@ const Quaternion = require( 'cannon/src/math/Quaternion' );
 const Cylinder = require( 'cannon/src/shapes/Cylinder' );
 const Body = require( 'cannon/src/objects/Body' );
 const Sphere = require( 'cannon/src/shapes/Sphere' );
+const RaycastVehicle = require( 'cannon/src/objects/RaycastVehicle' );
 
 export default class BB8 extends PhysicalObject {
 
@@ -29,31 +30,60 @@ export default class BB8 extends PhysicalObject {
         this.class = BB8;
         this.gameEngine = gameEngine;
 
-        this.ready = this.ready !== undefined;
-
         this.health = 100;
         // todo! on add to world
     }
 
     addPhysicalBody() {
         // create physical body
-        let pill = new Body( {
-            mass: MASS,
+        let chassisBody = new Body( {
+            mass: 18,
+            fixedRotation: true,
+        } );
+        let collisionSphere = new Sphere( .5 );
+        chasisBody.addShape( Sphere );
+
+        // create vehicle
+        let raycastVehicle = new RaycastVehicle( {
+            chassisBody: chasisBody,
         } );
 
-        let sphereA = new Sphere( .25 );
-        let sphereB = new Sphere( .25 );
-        let cylinder = new Cylinder( .5, .5, 1.25, 12 );
+        // add wheel to vehicle
+        raycastVehicle.addWheel( {
+            radius: 1,
+            suspensionStiffness: 30,
+            suspensionRestLength: 0.3,
+            frictionSlip: 5,
+            dampingRelaxation: 2.3,
+            dampingCompression: 4.4,
+            maxSuspensionForce: 100000,
+            rollInfluence: 0.01,
+            axleLocal: new CANNON.Vec3( 0, 1, 0 ),
+            chassisConnectionPointLocal: new CANNON.Vec3( 0, 0, 0 ),
+            maxSuspensionTravel: 0.3,
+            customSlidingRotationalSpeed: -30,
+            useCustomSlidingRotationalSpeed: true
+        } );
 
-        pill
-            .addShape( cylinder )
-            .addShape( sphereA, new Vec3( 0, .625, 0 ) )
-            .addShape( sphereB, new Vec3( 0, -.625, 0 ) )
-        ;
+        // add vehicle to world
+        raycastVehicle.addToWorld( this.gameEngine.physicsEngine.world );
 
-        this.gameEngine.physicsEngine.world.addBody( pill );
+        // config the wheel body
+        let wheel = raycastVehicle.wheelInfos[ 0 ];
+        let cylinderShape = new CANNON.Cylinder( wheel.radius, wheel.radius, wheel.radius / 2, 20 );
+        let wheelBody = new CANNON.Body( {
+            mass: 0,
+        } );
+        wheelBody.type = CANNON.Body.KINEMATIC;
+        wheelBody.collisionFilterGroup = 0; // turn off collisions
+        let q = new CANNON.Quaternion();
+        q.setFromAxisAngle( new CANNON.Vec3( 1, 0, 0 ), Math.PI / 2 );
+        wheelBody.addShape( cylinderShape, new CANNON.Vec3(), q );
+        // and add it to world
 
-        this.physicsObj = pill;
+        this.gameEngine.physicsEngine.world.addBody( wheelBody );
+
+        this.physicsObj = raycastVehicle;
     }
 
     addObject3D() {
