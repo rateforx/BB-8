@@ -1,36 +1,74 @@
 import Serializer from 'lance/serialize/Serializer';
 import PhysicalObject from 'lance/serialize/PhysicalObject';
+
 const THREE = require( 'three/build/three' );
 THREE.Reflector = require( '../lib/Reflector' );
 THREE.Refractor = require( '../lib/Refractor' );
 THREE.Water = require( '../lib/Water2' );
 const CANNON = require( 'cannon' );
 const Trimesh = require( 'cannon/src/shapes/Trimesh' );
-Object.sizeof = require( 'object-sizeof' );
 
 export default class Map extends PhysicalObject {
+
+    static get netScheme () {
+        return Object.assign( {
+            vertices: {
+                type: Serializer.TYPES.LIST,
+                itemType: Serializer.TYPES.FLOAT32,
+            },
+            faces: {
+                type: Serializer.TYPES.LIST,
+                itemType: Serializer.TYPES.INT32,
+            },
+        }, super.netScheme );
+    }
 
     /**
      * @param gameEngine {TheGameEngine}
      * @param options
      * @param props
-     * @param data {Object}
-     * @param data.vertices {Array} array of vertices describing highfield {Vec3}
-     * @param data.faces {Array} array of faces
      */
-    constructor( gameEngine, options, props, data ) {
+    constructor ( gameEngine, options, props ) {
         super( gameEngine, options, props );
         this.gameEngine = gameEngine;
         this.class = Map;
-        this.data = data;
-        this.object3D = new THREE.Object3D();
+        // this.vertices = [];
+        // this.faces = [];
+
+        if ( typeof Map.data !== 'undefined' ) {
+            this.vertices = Map.data.vertices;
+            this.faces = Map.data.faces;
+        }
+    }
+
+    static getData() {
+        return Map.data;
+    }
+
+    static setData( data ) {
+        Map.data = data;
     }
 
     addTerrain () {
         // create the terrain model and add to maps object3D
         let gTerrain = new THREE.Geometry();
-        gTerrain.vertices = this.data.vertices;
-        gTerrain.faces = this.data.faces;
+
+        for ( let i = 0; i < Map.data.vertices.length; i += 3 ) {
+            gTerrain.vertices.push( new THREE.Vector3( Map.data.vertices[ i ] ) );
+            gTerrain.vertices.push( new THREE.Vector3( Map.data.vertices[ i + 1 ] ) );
+            gTerrain.vertices.push( new THREE.Vector3( Map.data.vertices[ i + 2 ] ) );
+        }
+
+        for ( let i = 0; i < Map.data.faces.length; i += 3 ) {
+            let a = Map.data.faces[ i ];
+            let b = Map.data.faces[ i + 1 ];
+            let c = Map.data.faces[ i + 2 ];
+            gTerrain.faces.push( new THREE.Face3( a, b, c ) );
+        }
+
+        gTerrain.computeVertexNormals();
+        gTerrain.computeFaceNormals();
+
         // todo right material
         let mTerrain = new THREE.MeshNormalMaterial();
         let terrain = new THREE.Mesh( gTerrain, mTerrain );
@@ -39,7 +77,7 @@ export default class Map extends PhysicalObject {
         this.object3D.add( terrain );
     }
 
-    addGround() {
+    addGround () {
         let resourceManager = this.gameEngine.renderer.resourceManager;
 
         let gGround = new THREE.PlaneBufferGeometry( 100, 100 );
@@ -54,7 +92,7 @@ export default class Map extends PhysicalObject {
         this.object3D.add( ground );
     }
 
-    addOcean() {
+    addOcean () {
         let resourceManager = this.gameEngine.renderer.resourceManager;
 
         let gWater = new THREE.PlaneBufferGeometry( 100, 100 );
@@ -74,44 +112,36 @@ export default class Map extends PhysicalObject {
         this.object3D.add( this.water );
     }
 
-    addPhysicsBodies() {
-        // prepare trimesh data
-        let v = [];
-        for( let i = 0; i < this.data.vertices.length; i++ ) {
-            v.push( this.data.vertices[ i ].x );
-            v.push( this.data.vertices[ i ].y );
-            v.push( this.data.vertices[ i ].z );
-        }
-        let f = [];
-        for( let i = 0; i < this.data.faces.length; i++ ) {
-            f.push( this.data.faces[ i ].a );
-            f.push( this.data.faces[ i ].b );
-            f.push( this.data.faces[ i ].c );
-        }
-        console.log( 'loops have looped successfully' );
-
-        let shape = new Trimesh( v, f );
-        console.log( 'shape created' );
+    addPhysicsBodies () {
+        let shape = new Trimesh( Map.data.vertices, Map.data.faces );
 
         this.physicsObj = new CANNON.Body();
         this.physicsObj.addShape( shape );
-        console.log( 'body created' );
-        // console.log( 'Terrain physicsObj: ' + Object.sizeof( this.physicsObj ) );
 
         this.gameEngine.physicsEngine.world.addBody( this.physicsObj );
     }
 
-    onAddToWorld() {
-        this.addPhysicsBodies();
-        if ( !this.gameEngine.isServer ) {
+    onAddToWorld () {
+        // if ( this.gameEngine.isServer ) {
+            this.addPhysicsBodies();
+        if ( !this.gameEngine.isServer() ) {
+        // } else {
+            this.object3D = new THREE.Object3D();
             // prepare models
             this.addOcean();
             this.addGround();
             this.addTerrain();
             // add models
-            this.gameEngine.renderer.addObject( this.object3D );
+            this.gameEngine.renderer.add( this.object3D );
         }
-        // conserve memory!
-        delete this.data;
+    }
+
+    toString () {
+        return `Map::${super.toString()}`;
+    }
+
+    destroy () {
+        this.gameEngine.physicsEngine.removeObject( this.physicsObj );
+        this.gameEngine.renderer.remove( this.object3D );
     }
 }

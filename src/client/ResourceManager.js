@@ -14,10 +14,11 @@ export default class ResourceManager {
 
         this.loadingManager = THREE.DefaultLoadingManager;
         this.loadingManager.onProgress = ( url, itemsLoaded, itemsTotal ) => {
+            if ( url.length > 32 ) url = url.slice(0,32) + '...';
             console.log( `Loading file: ${url} . Loaded ${itemsLoaded} of ${itemsTotal} files.` );
         };
         this.loadingManager.onLoad = () => {
-            this.emit( 'finished' );
+            this.emit( 'resourcesLoaded' );
         };
         this.loadingManager.onError = url => {
             console.log( `There was an error loading ${url}` );
@@ -31,7 +32,7 @@ export default class ResourceManager {
 
         // this.colladaLoader = new ColladaLoader( this.loadingManager ));
 
-        // this.objectLoader = new THREE.ObjectLoader( this.loadingManager );
+        this.objectLoader = new THREE.ObjectLoader( this.loadingManager );
         // this.objectLoader.setPath( '' );
 
         this.jsonLoader = new THREE.JSONLoader( this.loadingManager );
@@ -81,6 +82,17 @@ export default class ResourceManager {
                 this.emit( name, obj );
             }
         );
+    }
+
+    loadObject( url, name ) {
+        this.objectLoader.load(
+            url,
+            object3D => {
+                if ( name !== undefined )
+                    this.objects[ name ] = object3D;
+                this.emit( name, object3D );
+            }
+        )
     }
 
     loadJSON( url, name ) {

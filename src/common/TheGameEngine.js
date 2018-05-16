@@ -6,11 +6,12 @@ import Crate from "./Crate";
 import Map from "./Map";
 import MapLoader from "./MapLoader";
 
+let CANNON = null;
+
 export default class TheGameEngine extends GameEngine {
 
     /**
-     *
-     * @filed renderer {TheRenderer}
+     * @field renderer {TheRenderer}
      * @param options
      */
     constructor( options ) {
@@ -18,27 +19,32 @@ export default class TheGameEngine extends GameEngine {
 
         this.log = [];
         this.physicsEngine = new CannonPhysicsEngine( { gameEngine: this } );
+        this.physicsEngine.world.gravity.set( 0, -9.81, 0 );
         CANNON = this.physicsEngine.CANNON;
 
-        this.bb8Control = new BB8Control( {CANNON} );
-
+        this.bb8Control = new BB8Control( { CANNON } );
+        this.mapLoader = new MapLoader( this.isServer );
 
         // todo init meta
-        this.players = [];
         this.numPlayers = 0;
+        this.metaData = {
+            players: [],
+        };
 
         this._isServer = typeof window === 'undefined';
+        if ( !this.isServer ) {
+            this.renderer = {}; // redundant?
+        }
 
+        // todo test loading map on both client and server
+        // todo try without adding it as a lance object
         this.on( 'server__init', () => {
             // this.init.bind( this );
             this.init.call( this );
         } );
-
-        this.mapLoader = new MapLoader( this.isServer );
     }
 
-
-    get isServer() {
+    isServer() {
         return this._isServer;
     }
 
@@ -46,20 +52,33 @@ export default class TheGameEngine extends GameEngine {
         super.start();
     }
 
-    // The Game engine step
+    /**
+     * The game engine step
+     * @param isReenact {Boolean}
+     * @param t {Number}
+     * @param dt {Number}
+     * @param physicsOnly {Boolean}
+     */
     step( isReenact, t, dt, physicsOnly ) {
         super.step( isReenact, t, dt, physicsOnly );
 
-        // todo update positions and stuff
+        this.world.forEachObject( (id, obj) => {
+            if ( obj.class === BB8 ) {
+                obj.adjustMovement();
+            }
+        } );
+
+        // todo kill check?
     }
 
     init() {
         console.log( 'Loading map' );
-        let mapName = 'terrain.json';
+        let mapName = 'terrain';
         this.mapLoader.on( mapName, data => {
             let options = {};
             let props = {};
-            this.map = new Map( this, options, props, data );
+            Map.setData( data );
+            this.map = new Map( this, options, props );
             this.addObjectToWorld( this.map );
         } );
         this.mapLoader.loadMapData( mapName );
@@ -69,6 +88,8 @@ export default class TheGameEngine extends GameEngine {
         serializer.registerClass( BB8 );
         serializer.registerClass( Crate );
         serializer.registerClass( Map );
+        // serializer.registerClass( Int32Array );
+        // serializer.registerClass( Float32Array );
     }
 
     /**
@@ -79,11 +100,16 @@ export default class TheGameEngine extends GameEngine {
     addPlayer( playerId, team ) {
         console.log( 'adding a new player ' + playerId );
 
+        let existingBB8 = this.world.queryObject( { playerId } );
+        if ( existingBB8 ) {
+            return existingBB8;
+        }
+
         let bb8 = new BB8( this );
         bb8.playerId = playerId;
+        // bb8.team = team;
 
         this.addObjectToWorld( bb8 );
-        this.players.push( bb8 );
         this.numPlayers++;
 
         console.log( `New BB8 [${bb8.id}] for player [${playerId}]` );
@@ -97,6 +123,7 @@ export default class TheGameEngine extends GameEngine {
         let obj = this.world.queryObject( { playerId } );
         if ( obj ) {
             this.removeObjectFromWorld( obj.id );
+            this.numPlayers--;
         }
     }
 
@@ -109,7 +136,13 @@ export default class TheGameEngine extends GameEngine {
         super.processInput( inputData, playerId );
         let playerObj = this.world.queryObject( { playerId } );
         if ( playerObj ) {
-            // todo process input
+            if ( [ 'up', 'down' ].includes( inputData.input ) ) {
+                this.bb8Control.accelerate( playerObj, inputData.input );
+            }
+            if ( [ 'left', 'right' ].includes( inputData.input ) ) {
+                this.bb8Control.turn( playerObj, inputData.input );
+            }
+            playerObj.refreshFromPhysics();
         }
     }
 }

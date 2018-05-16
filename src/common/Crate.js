@@ -26,12 +26,15 @@ export default class Crate extends PhysicalObject {
             this.position.z,
         );
 
-        // create 3D body
-        this.renderer = gameEngine.renderer ? gameEngine.renderer.scene : null;
-        if ( this.scene ) {
-            let gCrate = new THREE.BoxGeometry; // ( 1, 1, 1 )
-            let mCrate = new THREE.MeshLambertMaterial;
-            this.object3D = new THREE.Mesh( gCrate, mCrate );
+        if ( !this.gameEngine.isServer ) {
+            // create 3D body
+            this.renderer = gameEngine.renderer ? gameEngine.renderer.scene : null;
+            if ( this.scene ) {
+                let gCrate = new THREE.BoxGeometry; // ( 1, 1, 1 )
+                let mCrate = new THREE.MeshLambertMaterial;
+                this.object3D = new THREE.Mesh( gCrate, mCrate );
+            }
+            this.gameEngine.renderer.add( this.object3D );
         }
     }
 };

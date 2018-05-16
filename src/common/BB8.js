@@ -12,6 +12,7 @@ const Utils = require( '../client/Utils' );
 const Vec3 = require( 'cannon/src/math/Vec3' );
 const Quaternion = require( 'cannon/src/math/Quaternion' );
 
+// const CANNON = require( 'cannon/src/Cannon' );
 const Cylinder = require( 'cannon/src/shapes/Cylinder' );
 const Body = require( 'cannon/src/objects/Body' );
 const Sphere = require( 'cannon/src/shapes/Sphere' );
@@ -56,17 +57,19 @@ export default class BB8 extends PhysicalObject {
     }
 
     addObject3D() {
-        // create THREE Object3D
+        // get the Object3D
         let rm = this.gameEngine.renderer.resourceManager;
-        this.object3D = rm.getModel( 'bb8' ).clone();
+        this.object3D = rm.getObject( 'bb8' ).clone();
 
-        this.gameEngine.renderer.addObject( this.object3D );
-
-        this.material = new THREE.MeshPhysicalMaterial( {
+        let material = new THREE.MeshPhysicalMaterial( {
             roughness: .12,
             metalness: .22,
             color: `hsl( ${Math.random() * 360}, 100%, 90% )`,
         } );
+        // this.object3D.material.outlineParameters = {
+        //     color: material.color,
+        // };
+
         this.object3D.traverse( o => {
             if ( o.isMesh ) {
                 o.material = material;
@@ -74,8 +77,7 @@ export default class BB8 extends PhysicalObject {
                 o.receiveShadows = true;
             }
         } );
-
-        this.gameEngine.renderer.addObject( this.object3D );
+        this.gameEngine.renderer.add( this.object3D );
     }
 
     onAddToWorld() {
@@ -83,5 +85,39 @@ export default class BB8 extends PhysicalObject {
             this.addObject3D();
         }
         this.addPhysicalBody();
+    }
+
+    adjustMovement() {
+        this.refreshFromPhysics();
+
+        if ( !this.gameEngine.isServer() ) {
+            this.object3D.position.set(
+                this.position.x,
+                this.position.y,
+                this.position.z,
+            );
+            this.object3D.quaternion.set(
+                this.quaternion.x,
+                this.quaternion.y,
+                this.quaternion.z,
+                this.quaternion.w,
+            )
+        }
+    }
+
+    // setColor( color ) {
+    //     if ( typeof color !== 'object' ) {
+    //         color = new THREE.Color( color );
+    //     }
+    //
+    // }
+
+    toString() {
+        return `BB8::${super.toString()}`;
+    }
+
+    destroy() {
+        this.gameEngine.physicsEngine.removeObject( this.physicsObj );
+        this.gameEngine.renderer.remove( this.object3D );
     }
 }

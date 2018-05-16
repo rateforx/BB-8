@@ -8,7 +8,12 @@ THREE.OrbitControls = require( '../lib/OrbitControls' );
 
 export default class TheClientEngine extends ClientEngine {
 
+    /**
+     * @param gameEngine {TheGameEngine}
+     * @param options {Object}
+     */
     constructor( gameEngine, options ) {
+        /** @param TheRenderer {TheRenderer} */
         super( gameEngine, options, TheRenderer );
 
         this.gameEngine.on( 'client__preStep', this.preStep, this );
@@ -24,19 +29,18 @@ export default class TheClientEngine extends ClientEngine {
             this.renderer.once( 'ready', this.onRendererReady, this );
         }
 
-        // todo fix and enable hud updating
         this.networkMonitor.on( 'RTTUpdate', e => this.renderer.updateHUD( e ) );
     }
 
     connect() {
-        return super.connect().then( _ => {
+        return super.connect().then( () => {
 
             this.socket.on( 'disconnect', e => {
                 console.log( 'disconnected' );
                 let body = $( 'body' );
                 body.addClass( 'disconnected' );
                 body.removeClass( 'gameActive' );
-                $( '#reconnect' ).prop( 'disabled', true );
+                $( '#reconnect' ).prop( 'disabled', false );
             } );
 
             this.socket.on( 'metaDataUpdate', e => {
@@ -50,10 +54,10 @@ export default class TheClientEngine extends ClientEngine {
     onRendererReady() {
         this.connect();
 
-        // this.controls = new KeyboardControls( this.renderer );
+        this.controls = new KeyboardControls( this.renderer );
 
-        $( '#joinGame' ).click( _ => this.socket.emit( 'requestRestart' ) );
-        $( '#reconnect' ).click( _ => window.location.reload() );
+        $( '#joinGame' ).click( () => this.socket.emit( 'requestRestart' ) );
+        $( '#reconnect' ).click( () => window.location.reload() );
     }
 
     preStep() {

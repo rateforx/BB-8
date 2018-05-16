@@ -1,4 +1,4 @@
-let cannon = null;
+let CANNON = null;
 
 const FORWARD_IMPULSE = .45;
 const MAX_VELOCITY = 25;
