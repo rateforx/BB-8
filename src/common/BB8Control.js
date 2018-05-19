@@ -17,30 +17,43 @@ export default class BB8Control {
         CANNON = options.CANNON;
     }
 
+    // noinspection JSMethodCanBeStatic
     /**
      * @param bb8 {BB8}
      * @param input {String} up, down, left, right
      */
     controlVehicle( bb8, input ) {
-        let vehicle = bb8.physicalObj;
+        let vehicle = bb8.vehicleObj;
+        let body = bb8.physicsObj;
+        let o3d = bb8.object3D;
 
         switch ( input ) {
             // second parameter (0) is the wheel index
 
             case 'up':
-                vehicle.applyEngineForce( -MAX_FORCE, 0 );
+                // console.log( 'engine+' );
+                vehicle.applyEngineForce( -MAX_FORCE, 2 );
+                vehicle.applyEngineForce( -MAX_FORCE, 3 );
+                body.applyForce( new CANNON.Vec3( 0, 100, 0 ), new CANNON.Vec3() );
                 break;
 
             case 'down':
-                vehicle.applyEngineForce( MAX_FORCE, 0 );
+                // console.log( 'engine-' );
+                vehicle.applyEngineForce( MAX_FORCE, 2 );
+                vehicle.applyEngineForce( MAX_FORCE, 3 );
                 break;
 
             case 'left':
+                // console.log( 'steer<' );
                 vehicle.setSteeringValue( MAX_STEERING_VALUE, 0 );
+                vehicle.setSteeringValue( MAX_STEERING_VALUE, 1 );
                 break;
 
             case 'right':
+                // console.log( 'steer>' );
                 vehicle.setSteeringValue( -MAX_STEERING_VALUE, 0 );
+                vehicle.setSteeringValue( -MAX_STEERING_VALUE, 1 );
+                break;
 
             // todo consider adding braking
         }
@@ -95,8 +108,4 @@ export default class BB8Control {
             o.physicsObj.angularVelocity.vadd( deltaAngularVelocity, o.physicsObj.angularVelocity );
         }
     }*/
-
-    jump( robot ) {
-        // todo jumping
-    }
 }

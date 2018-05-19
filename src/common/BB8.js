@@ -12,7 +12,7 @@ const Utils = require( '../client/Utils' );
 const Vec3 = require( 'cannon/src/math/Vec3' );
 const Quaternion = require( 'cannon/src/math/Quaternion' );
 
-// const CANNON = require( 'cannon/src/Cannon' );
+const CANNON = require( 'cannon' );
 const Cylinder = require( 'cannon/src/shapes/Cylinder' );
 const Body = require( 'cannon/src/objects/Body' );
 const Sphere = require( 'cannon/src/shapes/Sphere' );
@@ -36,21 +36,32 @@ export default class BB8 extends PhysicalObject {
 
     addPhysicalBody() {
         // create physical body
-        let chassisBody = new Body( {
-            mass: 18,
-            fixedRotation: true,
+        // let chassisBody = new Body( {
+        //     mass: 180,
+        //     position: new CANNON.Vec3(
+        //         this.position.x,
+        //         this.position.y,
+        //         this.position.z,
+        //     )
+        // } );
+        // let collisionSphere = new Sphere( .5 );
+        // chassisBody.addShape( collisionSphere );
+        let chassisShape = new CANNON.Box( new CANNON.Vec3( 2, 1, .5 ) );
+        let chassisBody = new CANNON.Body( {
+            mass: 150,
+            position: new CANNON.Vec3(
+                this.position.x,
+                this.position.y,
+                this.position.z,
+            )
         } );
-        let collisionSphere = new Sphere( .5 );
-        chasisBody.addShape( Sphere );
+        chassisBody.addShape( chassisShape );
+        chassisBody.quaternion.setFromAxisAngle( new CANNON.Vec3( 1, 0, 0 ), Math.PI / 2 );
+        chassisBody.angularVelocity.set( 0, .5, 0 );
 
-        // create vehicle
-        let raycastVehicle = new RaycastVehicle( {
-            chassisBody: chasisBody,
-        } );
-
-        // add wheel to vehicle
-        raycastVehicle.addWheel( {
-            radius: 1,
+        let options = {
+            radius: .5,
+            directionLocal: new CANNON.Vec3( 0, 0, -1 ),
             suspensionStiffness: 30,
             suspensionRestLength: 0.3,
             frictionSlip: 5,
@@ -59,31 +70,69 @@ export default class BB8 extends PhysicalObject {
             maxSuspensionForce: 100000,
             rollInfluence: 0.01,
             axleLocal: new CANNON.Vec3( 0, 1, 0 ),
-            chassisConnectionPointLocal: new CANNON.Vec3( 0, 0, 0 ),
+            chassisConnectionPointLocal: new CANNON.Vec3(),
             maxSuspensionTravel: 0.3,
             customSlidingRotationalSpeed: -30,
             useCustomSlidingRotationalSpeed: true
+        };
+
+        // create vehicle
+        let vehicle = new RaycastVehicle( {
+            chassisBody: chassisBody,
         } );
+
+        // add wheel to vehicle
+        options.chassisConnectionPointLocal.set( 1, 1, 0 );
+        vehicle.addWheel( options );
+
+        options.chassisConnectionPointLocal.set(1, -1, 0);
+        vehicle.addWheel(options);
+
+        options.chassisConnectionPointLocal.set(-1, 1, 0);
+        vehicle.addWheel(options);
+
+        options.chassisConnectionPointLocal.set(-1, -1, 0);
+        vehicle.addWheel(options);
 
         // add vehicle to world
-        raycastVehicle.addToWorld( this.gameEngine.physicsEngine.world );
+        vehicle.addToWorld( this.gameEngine.physicsEngine.world );
 
         // config the wheel body
-        let wheel = raycastVehicle.wheelInfos[ 0 ];
-        let cylinderShape = new CANNON.Cylinder( wheel.radius, wheel.radius, wheel.radius / 2, 20 );
-        let wheelBody = new CANNON.Body( {
-            mass: 0,
-        } );
-        wheelBody.type = CANNON.Body.KINEMATIC;
-        wheelBody.collisionFilterGroup = 0; // turn off collisions
-        let q = new CANNON.Quaternion();
-        q.setFromAxisAngle( new CANNON.Vec3( 1, 0, 0 ), Math.PI / 2 );
-        wheelBody.addShape( cylinderShape, new CANNON.Vec3(), q );
+        // let wheel = vehicle.wheelInfos[ 0 ];
+        // let cylinderShape = new CANNON.Sphere( 1 );
+        // let wheelBody = new CANNON.Body( {
+        //     mass: 0,
+        //     type: CANNON.Body.KINEMATIC,
+        // } );
+        // wheelBody.type = CANNON.Body.KINEMATIC;
+        // wheelBody.collisionFilterGroup = 0; // turn off collisions
+        // let q = new CANNON.Quaternion();
+        // q.setFromAxisAngle( new CANNON.Vec3( 1, 0, 0 ), Math.PI / 2 );
+        // wheelBody.addShape( cylinderShape, new CANNON.Vec3(), q );
         // and add it to world
 
-        this.gameEngine.physicsEngine.world.addBody( wheelBody );
+        // this.gameEngine.physicsEngine.world.addBody( wheelBody );
 
-        this.physicsObj = raycastVehicle;
+        // this.wheelObj = wheelBody;
+
+        let wheelBodies = [];
+        for ( let i = 0; i < vehicle.wheelInfos.length; i++ ) {
+            let wheel = vehicle.wheelInfos[ i ];
+            let wheelShape = new CANNON.Cylinder( wheel.radius, wheel.radius, wheel.radius / 2, 20 );
+            let wheelBody = new CANNON.Body( {
+                mass: 0,
+            } );
+            wheelBody.type = CANNON.Body.KINEMATIC;
+            wheelBody.collisionFilterGroup = 0; // turn off collisions
+            let q = new CANNON.Quaternion();
+            q.setFromAxisAngle( new CANNON.Vec3( 1, 0, 0 ), Math.PI / 2 );
+            wheelBody.addShape( wheelShape, new CANNON.Vec3(), q );
+            wheelBodies.push( wheelBody );
+            this.gameEngine.physicsEngine.world.addBody( wheelBody );
+        }
+        this.wheelObjs = wheelBodies;
+        this.physicsObj = chassisBody;
+        this.vehicleObj = vehicle;
     }
 
     addObject3D() {
@@ -110,31 +159,49 @@ export default class BB8 extends PhysicalObject {
         this.gameEngine.renderer.add( this.object3D );
     }
 
-    onAddToWorld() {
-        if ( !this.gameEngine.isServer ) {
+    /**
+     * @param gameEngine {TheGameEngine}
+     * */
+    onAddToWorld( gameEngine ) {
+        this.addPhysicalBody();
+        if ( !gameEngine.isServer() ) {
             this.addObject3D();
         }
-        this.addPhysicalBody();
     }
 
     adjustMovement() {
+        // update wheels
+        // let t = this.vehicleObj.wheelInfos[0].worldTransform;
+        // this.wheelObj.position.copy( t.position );
+        // this.wheelObj.quaternion.copy( t.quaternion );
+        for ( let i = 0; i < this.wheelObjs.length; i++ ) {
+            this.vehicleObj.updateWheelTransform( i );
+            let t = this.vehicleObj.wheelInfos[ i ].worldTransform;
+            let wheelBody = this.wheelObjs[ i ];
+            wheelBody.position.copy( t.position );
+            wheelBody.quaternion.copy( t.quaternion );
+        }
+
         this.refreshFromPhysics();
 
-        if ( !this.gameEngine.isServer() ) {
+        if ( ( !this.gameEngine.isServer() ) && ( typeof this.object3D !== 'undefined' ) ) {
             this.object3D.position.set(
-                this.position.x,
-                this.position.y,
-                this.position.z,
+                this.physicsObj.position.x,
+                this.physicsObj.position.y,
+                this.physicsObj.position.z,
             );
             this.object3D.quaternion.set(
-                this.quaternion.x,
-                this.quaternion.y,
-                this.quaternion.z,
-                this.quaternion.w,
+                this.physicsObj.quaternion.x,
+                this.physicsObj.quaternion.y,
+                this.physicsObj.quaternion.z,
+                this.physicsObj.quaternion.w,
             )
         }
     }
 
+    refreshFromPhysics() {
+        super.refreshFromPhysics();
+    }
     // setColor( color ) {
     //     if ( typeof color !== 'object' ) {
     //         color = new THREE.Color( color );

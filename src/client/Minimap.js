@@ -12,7 +12,7 @@ export default class Minimap {
             637.5, -637.5,
             1, 10000
         );
-        this.camera.position.set( 0, 1000, 0 );
+        this.camera.position.set( -10, 1000, 30 );
         this.camera.lookAt( renderer.scene.position );
         this.ZOOM = 10;
         this.camera.zoom = this.ZOOM;
@@ -28,6 +28,13 @@ export default class Minimap {
                 stencilBuffer: false,
             }
         );
+
+        let gPlane = new THREE.PlaneGeometry( 1000, 1000, 1, 1 );
+        let mPlane = new THREE.MeshBasicMaterial( {
+            color: 0,
+        } );
+        this.background = new THREE.Mesh( gPlane, mPlane );
+        this.background.rotation.x = Math.PI / -2;
 
         this.addObject3D();
     }
@@ -49,6 +56,7 @@ export default class Minimap {
 
         this.renderer.camera.layers.enable( 3 );
         this.phone.layers.set( 3 );
+        this.phone.castShadows = false;
 
         /*this.screen.material = new THREE.ShaderMaterial( {
             uniforms: {

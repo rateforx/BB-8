@@ -20,7 +20,7 @@ export default class TheRenderer extends Renderer {
      * @param gameEngine {TheGameEngine}
      * @param clientEngine {TheClientEngine}
      */
-    constructor( gameEngine, clientEngine ) {
+    constructor ( gameEngine, clientEngine ) {
         super( gameEngine, clientEngine );
         this.gameEngine = gameEngine;
         this.clientEngine = clientEngine;
@@ -28,9 +28,9 @@ export default class TheRenderer extends Renderer {
         this.THREE = THREE;
 
         this.AA = true;
-        this.SHADOW = 2048;
+        this.SHADOW = 4096;
         this.CANNON = false;
-        // this.DEBUG = true;
+        this.DEBUG = true;
         this.OUTLINE = true;
         this.BLUR = false;
         this.RESOLUTION = 1; // must be greater than 0, more than 1 is overkill
@@ -47,7 +47,7 @@ export default class TheRenderer extends Renderer {
         this.gui = null;
     }
 
-    init() {
+    init () {
         return super.init().then( () => {
 
             window.renderer = this;
@@ -56,9 +56,24 @@ export default class TheRenderer extends Renderer {
             this.scene.background = new THREE.Color( 0 );
             this.updateViewportSize();
 
-            this.resourceManager = new ResourceManager();
+
+            // show cannon objects
+            if (this.DEBUG) {
+                window.CANNON = this.gameEngine.physicsEngine.CANNON;
+                let head = document.getElementsByTagName('head')[0];
+                let script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = '/CannonDebugRenderer.js';
+                script.onload = () => {
+                    this.cannonDebugRenderer = new THREE.CannonDebugRenderer( this.scene, this.gameEngine.physicsEngine.world );
+                };
+                head.appendChild(script);
+            }
+
+
+            this.resourceManager = new ResourceManager( this );
             this.resourceManager.once( 'resourcesLoaded', () => {
-                this.onResourcesLoaded.call(this);
+                this.onResourcesLoaded.call( this );
             } );
             this.loadResources();
 
@@ -69,13 +84,8 @@ export default class TheRenderer extends Renderer {
                 5000 // far
             );
             this.add( this.camera );
-            this.camera.position.set( 10, 10, 10 );
+            this.camera.position.set( 80, 80, -80 );
             this.camera.lookAt( this.scene.position );
-
-            // point light
-            let pointLight = new THREE.PointLight( 'white', 1, 0, 2 );
-            pointLight.position.set( 450, 2000, 450 );
-            scene.add( pointLight );
 
             this.renderer = !this.CANNON
                 ? new THREE.WebGLRenderer( { antialias: this.AA } )
@@ -92,7 +102,9 @@ export default class TheRenderer extends Renderer {
             this.renderer.shadowMap.width = this.SHADOW;
             this.renderer.shadowMap.height = this.SHADOW;
 
+            // noinspection ES6ModulesDependencies
             viewport.append( this.renderer.domElement );
+            this.canvas = this.renderer.domElement;
             $( window ).on( 'resize', this.onResize.bind( this ) );
 
             if ( this.OUTLINE ) {
@@ -116,8 +128,8 @@ export default class TheRenderer extends Renderer {
         } );
     }
 
-    onResourcesLoaded() {
-        this.emit('ready');
+    onResourcesLoaded () {
+        this.emit( 'ready' );
         $( '#loading' ).remove();
 
         this.minimap = new Minimap( this );
@@ -132,10 +144,14 @@ export default class TheRenderer extends Renderer {
     /**
      * Request animation frame called internally by the ClientEngine
      */
-    draw( t, dt ) {
+    draw ( t, dt ) {
         super.draw( t, dt );
         this.stats.update();
         this.frameNum++;
+
+        if ( this.cannonDebugRenderer ) {
+            this.cannonDebugRenderer.update();
+        }
 
         !this.OUTLINE
             ? this.renderer.render( this.scene, this.camera )
@@ -150,24 +166,24 @@ export default class TheRenderer extends Renderer {
     /**
      * @param object {Object3D}
      */
-    add( object ) {
+    add ( object ) {
         this.scene.add( object );
     }
 
     /**
      * @param object {Object3D}
      */
-    remove( object ) {
+    remove ( object ) {
         this.scene.remove( object );
     }
 
-    onMetaDataUpdate() {
+    onMetaDataUpdate () {
         let metaData = this.gameEngine.metaData;
         // todo update the meta :v
     }
 
     // noinspection JSMethodCanBeStatic
-    updateHUD( data ) {
+    updateHUD ( data ) {
         if ( data.RTT ) {
             $( '.latencyData' ).html( data.RTT );
         }
@@ -178,10 +194,11 @@ export default class TheRenderer extends Renderer {
 
     /** @deprecated use add() */
     addObject () {}
+
     /** @deprecated use remove() */
     removeObject () {}
 
-    static enableFullScreen() {
+    static enableFullScreen () {
         let isInFullScreen = (document.fullScreenElement && document.fullScreenElement !== null) ||    // alternative standard method
             (document.mozFullScreen || document.webkitIsFullScreen);
 
@@ -198,13 +215,13 @@ export default class TheRenderer extends Renderer {
         }
     }
 
-    updateViewportSize() {
+    updateViewportSize () {
         let viewport = $( '#viewport' ); // todo optimize (glob const)
         this.w = viewport.width();
         this.h = viewport.height();
     }
 
-    onResize() {
+    onResize () {
         this.updateViewportSize();
         let w = this.w;
         let h = this.h;
@@ -214,9 +231,16 @@ export default class TheRenderer extends Renderer {
         this.camera.updateProjectionMatrix();
     }
 
-    loadResources() {
+    clearView() {
+        let camera = this.camera;
+        let targer = this.camera.target
+    }
+
+    loadResources () {
         // scene
-        this.scene.background = this.resourceManager.loadCubeTexture( 'sky2', 'skybox' );
+        this.resourceManager.loadScene( 'hang-on' );
+        this.scene.background = this.resourceManager.loadCubeTexture( 'galaxy', 'galaxy' );
+        // this.scene.background = THREE.Color( 0 );
         // BB8
         // this.resourceManager.loadObj( 'bb8/bb8.obj', 'bb8' );
         this.resourceManager.loadObject( 'bb8.json', 'bb8' );

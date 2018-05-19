@@ -1,8 +1,14 @@
 import * as dat from 'dat.gui/src/dat/index';
 
+const $ = require( 'jquery' );
+const THREE = require( 'three/build/three' );
+
 export default class GUI {
 
-    constructor( renderer ) {
+    /**
+     * @param renderer {TheRenderer}
+     */
+    constructor ( renderer ) {
         this.renderer = renderer;
 
         this.gui = new dat.GUI();
@@ -14,7 +20,7 @@ export default class GUI {
             outlines: renderer.OUTLINE,
             antialiasing: renderer.AA,
 
-            zoom: renderer.minimap.camera.zoom,
+            zoom: renderer.minimap.ZOOM,
             minimapRotation: renderer.minimap.ROTATION,
         };
 
@@ -29,7 +35,12 @@ export default class GUI {
 
         graphics.add( params, 'shadowResolution', [ 128, 256, 512, 1024, 2048, 4096 ] )
             .onChange( value => {
-                renderer.SHADOW = renderer.renderer.shadowMap.width = renderer.renderer.shadowMap.height = value;
+                renderer.renderer.SHADOW = renderer.renderer.shadowMap.width = renderer.renderer.shadowMap.height = value;
+                renderer.scene.traverse( o => {
+                    if ( o.type === 'PointLight' ) {
+                        o.shadow.mapSize.width = o.shadow.mapSize.height = value;
+                    }
+                } );
             } );
 
         graphics.add( params, 'outlines' )
@@ -45,10 +56,34 @@ export default class GUI {
             .onChange( value => {
                 this.renderer.minimap.camera.zoom = value;
                 this.renderer.minimap.camera.updateProjectionMatrix();
-            });
+            } );
 
         // minimap.add( params, 'minimapRotation' );
 
         // this.gui.open();
+
+        // this.addTerrainHelper();
+    }
+
+    addTerrainHelper () {
+        let raycaster = new THREE.Raycaster();
+        let renderer = this.renderer;
+        let domElement = $( '#target' );
+
+        $( window ).mousemove( event => {
+
+            let mouse = new THREE.Vector2();
+            mouse.x = (event.clientX / renderer.canvas.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / renderer.canvas.innerHeight) * 2 + 1;
+            raycaster.setFromCamera( mouse, renderer.camera );
+
+            let intersects = raycaster.intersectObject( renderer.scene.getObjectByName( 'Terrain' ) );
+
+            if ( intersects.length > 0 ) {
+                domElement.text( intersects[ 0 ].point );
+            } else {
+                domElement.text( 'N/A' );
+            }
+        } );
     }
 }

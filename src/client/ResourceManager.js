@@ -9,12 +9,13 @@ THREE.CubeTextureLoader = require( 'three/src/loaders/CubeTextureLoader' ).CubeT
 
 export default class ResourceManager {
 
-    constructor() {
+    constructor( renderer ) {
+        this.renderer = renderer;
         this.assignEmitter();
 
         this.loadingManager = THREE.DefaultLoadingManager;
         this.loadingManager.onProgress = ( url, itemsLoaded, itemsTotal ) => {
-            if ( url.length > 32 ) url = url.slice(0,32) + '...';
+            if ( url.length > 32 ) url = url.slice( 0, 32 ) + '...';
             console.log( `Loading file: ${url} . Loaded ${itemsLoaded} of ${itemsTotal} files.` );
         };
         this.loadingManager.onLoad = () => {
@@ -45,7 +46,9 @@ export default class ResourceManager {
         this.textures = [];
         this.models = [];
         this.objects = [];
+        this.scenes = [];
     }
+
 
     loadTexture( url, name ) {
         let texture;
@@ -104,6 +107,31 @@ export default class ResourceManager {
                 this.emit( name, obj );
             }
         )
+    }
+
+    loadScene ( name ) {
+        let url = `/maps/${name}.json`;
+
+        this.fileLoader.load(
+            url,
+            data => {
+                // console.log( data );
+                let json = JSON.parse( data );
+                let scene =this.objectLoader.parse( json );
+                this.scene = scene;
+                this.emit( 'scene', scene );
+                this.transferObjects();
+            }
+        )
+    }
+
+    transferObjects( ) {
+        let scene = this.renderer.scene;
+        this.scene.traverse( o => {
+            if ( o.name === 'Box' || o.name === 'PointLight' ) {
+                scene.add( o.clone() );
+            }
+        } );
     }
 
     getTexture( name ) {
