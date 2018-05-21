@@ -5,6 +5,7 @@ const THREE = require( 'three/build/three' );
 const Stats = require( '../lib/stats.min' );
 THREE.CannonDebugRenderer = require( '../lib/CannonDebugRenderer' );
 THREE.OutlineEffect = require( '../lib/OutlineEffect' );
+THREE.TargetCamera = require( '../lib/TargetCamera' );
 import Renderer from "lance/render/Renderer";
 
 // GAME CLASSES
@@ -60,14 +61,15 @@ export default class TheRenderer extends Renderer {
             // show cannon objects
             if (this.DEBUG) {
                 window.CANNON = this.gameEngine.physicsEngine.CANNON;
-                let head = document.getElementsByTagName('head')[0];
-                let script = document.createElement('script');
-                script.type = 'text/javascript';
-                script.src = '/CannonDebugRenderer.js';
-                script.onload = () => {
+                window.THREE = this.THREE;
+                // let head = document.getElementsByTagName('head')[0];
+                // let script = document.createElement('script');
+                // script.type = 'text/javascript';
+                // script.src = '/CannonDebugRenderer.js';
+                // script.onload = () => {
                     this.cannonDebugRenderer = new THREE.CannonDebugRenderer( this.scene, this.gameEngine.physicsEngine.world );
-                };
-                head.appendChild(script);
+                // };
+                // head.appendChild(script);
             }
 
 
@@ -77,15 +79,26 @@ export default class TheRenderer extends Renderer {
             } );
             this.loadResources();
 
-            this.camera = new THREE.PerspectiveCamera(
+            // this.camera = new THREE.PerspectiveCamera (
+            this.camera = new THREE.TargetCamera (
                 60, // fov
                 this.w / this.h, // aspect
                 .1, // near
                 5000 // far
             );
-            this.add( this.camera );
-            this.camera.position.set( 80, 80, -80 );
-            this.camera.lookAt( this.scene.position );
+
+            // target camera setup
+            this.camera.addTarget( {
+                name: 'Scene',
+                targetObject: this.scene,
+                cameraPosition: new THREE.Vector3( -100, 80, -15 ),
+                fixed: true,
+            } );
+            this.camera.setTarget( 'Scene' );
+
+            // this.add( this.camera );
+            // this.camera.position.set( 80, 80, -80 );
+            // this.camera.lookAt( this.scene.position );
 
             this.renderer = !this.CANNON
                 ? new THREE.WebGLRenderer( { antialias: this.AA } )
@@ -124,7 +137,7 @@ export default class TheRenderer extends Renderer {
             this.stats = new Stats();
             $( '#stats' ).append( this.stats.dom );
 
-            this.orbitControls = new THREE.OrbitControls( this.camera, document );
+            // this.orbitControls = new THREE.OrbitControls( this.camera, document );
         } );
     }
 
@@ -148,6 +161,8 @@ export default class TheRenderer extends Renderer {
         super.draw( t, dt );
         this.stats.update();
         this.frameNum++;
+
+        this.camera.update();
 
         if ( this.cannonDebugRenderer ) {
             this.cannonDebugRenderer.update();
@@ -231,32 +246,29 @@ export default class TheRenderer extends Renderer {
         this.camera.updateProjectionMatrix();
     }
 
-    clearView() {
-        let camera = this.camera;
-        let targer = this.camera.target
-    }
-
     loadResources () {
         // scene
-        this.resourceManager.loadScene( 'hang-on' );
+        this.resourceManager.loadTexture( 'metal/metal_BUMP.jpg', 'metal' );
+        this.resourceManager.loadScene( 'hang-on2' );
         this.scene.background = this.resourceManager.loadCubeTexture( 'galaxy', 'galaxy' );
         // this.scene.background = THREE.Color( 0 );
         // BB8
-        // this.resourceManager.loadObj( 'bb8/bb8.obj', 'bb8' );
         this.resourceManager.loadObject( 'bb8.json', 'bb8' );
+        this.resourceManager.loadTexture( 'bb8/bb8_DIFFUSE.jpg', 'bb8_DIFFUSE' );
+        this.resourceManager.loadTexture( 'bb8/bb8_NORMAL.jpg', 'bb8_NORMAL' );
         // Map
-        this.resourceManager.loadTexture( 'water/water1.jpg', 'water1' );
-        this.resourceManager.loadTexture( 'water/water2.jpg', 'water2' );
-        this.resourceManager.loadTexture( 'sand/sand1_BUMP.jpg', 'sand1_BUMP' );
-        this.resourceManager.loadTexture( 'sand/sand1_DIFFUSE.jpg', 'sand1_DIFFUSE' );
-        this.resourceManager.loadTexture( 'sand/sand1_DISPLACE.jpg', 'sand1_DISPLACE' );
-        this.resourceManager.loadTexture( 'sand/sand1_NORMAL.jpg', 'sand1_NORMAL' );
+        // this.resourceManager.loadTexture( 'water/water1.jpg', 'water1' );
+        // this.resourceManager.loadTexture( 'water/water2.jpg', 'water2' );
+        // this.resourceManager.loadTexture( 'sand/sand1_BUMP.jpg', 'sand1_BUMP' );
+        // this.resourceManager.loadTexture( 'sand/sand1_DIFFUSE.jpg', 'sand1_DIFFUSE' );
+        // this.resourceManager.loadTexture( 'sand/sand1_DISPLACE.jpg', 'sand1_DISPLACE' );
+        // this.resourceManager.loadTexture( 'sand/sand1_NORMAL.jpg', 'sand1_NORMAL' );
         // Minimap
         this.resourceManager.loadObject( 'phone.json', 'phone' );
         // Crate
-        this.resourceManager.loadTexture( 'crate/crate_DIFFUSE.jpg', 'crate_DIFFUSE' );
-        this.resourceManager.loadTexture( 'crate/crate_NORMAL.jpg', 'crate_NORMAL' );
-        this.resourceManager.loadTexture( 'crate/crate_SPECULAR.jpg', 'crate_SPECULAR' );
-        this.resourceManager.loadTexture( 'crate/crate_DISPLACE.jpg', 'crate_DISPLACE' );
+        // this.resourceManager.loadTexture( 'crate/crate_DIFFUSE.jpg', 'crate_DIFFUSE' );
+        // this.resourceManager.loadTexture( 'crate/crate_NORMAL.jpg', 'crate_NORMAL' );
+        // this.resourceManager.loadTexture( 'crate/crate_SPECULAR.jpg', 'crate_SPECULAR' );
+        // this.resourceManager.loadTexture( 'crate/crate_DISPLACE.jpg', 'crate_DISPLACE' );
     }
 }

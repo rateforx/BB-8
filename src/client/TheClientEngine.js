@@ -12,7 +12,7 @@ export default class TheClientEngine extends ClientEngine {
      * @param gameEngine {TheGameEngine}
      * @param options {Object}
      */
-    constructor( gameEngine, options ) {
+    constructor ( gameEngine, options ) {
         /** @param TheRenderer {TheRenderer} */
         super( gameEngine, options, TheRenderer );
 
@@ -20,7 +20,7 @@ export default class TheClientEngine extends ClientEngine {
         this.gameEngine.on( 'client__postStep', this.postStep, this );
     }
 
-    start() {
+    start () {
         super.start();
 
         if ( this.renderer.isReady ) {
@@ -32,7 +32,7 @@ export default class TheClientEngine extends ClientEngine {
         this.networkMonitor.on( 'RTTUpdate', e => this.renderer.updateHUD( e ) );
     }
 
-    connect() {
+    connect () {
         return super.connect().then( () => {
 
             this.socket.on( 'disconnect', e => {
@@ -51,7 +51,7 @@ export default class TheClientEngine extends ClientEngine {
         } )
     }
 
-    onRendererReady() {
+    onRendererReady () {
         this.connect();
 
         this.controls = new KeyboardControls( this.renderer );
@@ -60,27 +60,32 @@ export default class TheClientEngine extends ClientEngine {
         $( '#reconnect' ).click( () => window.location.reload() );
     }
 
-    preStep() {
+    preStep () {
         if ( this.controls ) {
-            if ( this.controls.activeInput.up ) {
+            let input = this.controls.activeInput;
+
+            if ( input.up ) {
                 this.sendInput( 'up', { movement: true } );
-            }
-
-            if ( this.controls.activeInput.left ) {
-                this.sendInput( 'left', { movement: true } );
-            }
-
-            if ( this.controls.activeInput.right ) {
-                this.sendInput( 'right', { movement: true } );
-            }
-
-            if ( this.controls.activeInput.down ) {
+            } else if ( input.down ) {
                 this.sendInput( 'down', { movement: true } );
+            } else if ( input.left ) {
+                this.sendInput( 'left', { movement: true } );
+            } else if ( input.right ) {
+                this.sendInput( 'right', { movement: true } );
+            } else if ( input.up && input.left ) {
+                this.sendInput( 'upleft', { movement: true } );
+            } else if ( input.up && input.right ) {
+                this.sendInput( 'upright', { movement: true } );
+            } else if ( input.down && input.left ) {
+                this.sendInput( 'downleft', { movement: true } );
+            } else if ( input.down && input.right ) {
+                this.sendInput( 'downright', { movement: true } );
             }
+
         }
     }
 
-    postStep( clientEngine ) {
+    postStep ( clientEngine ) {
 
     }
 }

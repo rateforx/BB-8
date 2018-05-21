@@ -277,13 +277,15 @@ export default class Map extends PhysicalObject {
                 let s = new THREE.Vector3();
                 matrix.decompose( p, q, s );
 
-                let body = gameEngine.physicsEngine.addBox(
+                let shape = new CANNON.Box( new CANNON.Vec3(
                     s.x / 2, // half width
                     s.y / 2, // half height
                     s.z / 2, // half depth
-                    0, // mass
-                    .3 // friction
-                );
+                ) );
+                let body = new CANNON.Body( {
+                    mass: 0,
+                } );
+                body.addShape( shape );
                 body.position.set(
                     p.x,
                     p.y,

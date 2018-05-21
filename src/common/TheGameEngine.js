@@ -1,17 +1,16 @@
-import GameEngine from "lance/GameEngine";
-import CannonPhysicsEngine from "lance/physics/CannonPhysicsEngine";
-import BB8 from "./BB8";
-import BB8Control from "./BB8Control";
-import Crate from "./Crate";
-import Map from "./Map";
-import MapLoader from "./MapLoader";
+import GameEngine from 'lance/GameEngine';
+import CannonPhysicsEngine from 'lance/physics/CannonPhysicsEngine';
+import BB8 from './BB8';
+import BB8Control from './BB8Control';
+import CarControl from './CarControl';
+import StrafeControl from './StrafeControl';
+import Crate from './Crate';
+import Map from './Map';
+import MapLoader from './MapLoader';
 import ThreeVector from 'lance/serialize/ThreeVector';
 
-const Material = require( 'cannon/src/material/Material' );
-const ContactMaterial = require( 'cannon/src/material/ContactMaterial' );
-
-let CANNON = require( 'cannon' );
-let THREE = require( 'three/build/three' );
+const CANNON = require( 'cannon' );
+const THREE = require( 'three/build/three' );
 
 export default class TheGameEngine extends GameEngine {
 
@@ -27,6 +26,7 @@ export default class TheGameEngine extends GameEngine {
         this.initPhysicsEngine();
 
         this.bb8Control = new BB8Control( { CANNON } );
+        this.carControl = new CarControl( { CANNON } );
         this.mapLoader = new MapLoader( this );
 
         this.numPlayers = 0;
@@ -98,11 +98,9 @@ export default class TheGameEngine extends GameEngine {
 
     loadScene () {
         console.log( 'Loading scene' );
-        let name = 'hang-on';
+        let name = 'hang-on2';
 
         this.mapLoader.on( name, json => {
-
-            // Map.json = json;
             Map.setJSON( json );
             if ( this.isServer() ) {
                 this.init.call( this );
@@ -137,12 +135,11 @@ export default class TheGameEngine extends GameEngine {
 
         let options = {};
         let props = {
-            // position: this.spawns[ Math.floor( Math.random() * this.spawns.length ) ],
-            position: new ThreeVector( -17.28, 51.09, 26.23 )
+            position: this.spawns[ Math.floor( Math.random() * this.spawns.length ) ],
+            // position: new ThreeVector( -17.28, 51.09, 26.23 )
         };
         let bb8 = new BB8( this, options, props );
         bb8.playerId = playerId;
-        // bb8.team = team;
 
         this.addObjectToWorld( bb8 );
         this.numPlayers++;
@@ -170,20 +167,8 @@ export default class TheGameEngine extends GameEngine {
     processInput ( inputData, playerId ) {
         super.processInput( inputData, playerId );
         let playerObj = this.world.queryObject( { playerId } );
-        // if ( playerObj ) {
-        //     if ( [ 'up', 'down' ].includes( inputData.input ) ) {
-        //         this.bb8Control.accelerate( playerObj, inputData.input );
-        //     }
-        //     if ( [ 'left', 'right' ].includes( inputData.input ) ) {
-        //         this.bb8Control.turn( playerObj, inputData.input );
-        //     }
-        //     playerObj.refreshFromPhysics();
-        // }
-
         if ( playerObj ) {
-            if ( [ 'up', 'down', 'left', 'right', ].includes( inputData.input ) ) {
-                this.bb8Control.controlVehicle( playerObj, inputData.input );
-            }
+            StrafeControl.accelerate( playerObj, inputData.input );
             playerObj.refreshFromPhysics();
         }
     }
@@ -191,15 +176,15 @@ export default class TheGameEngine extends GameEngine {
     initPhysicsEngine () {
         this.physicsEngine = new CannonPhysicsEngine( { gameEngine: this } );
         this.physicsEngine.world.broadphase = new CANNON.SAPBroadphase( this.physicsEngine.world );
-        this.physicsEngine.world.gravity.set( 0, -9.81, 0 );
+        // this.physicsEngine.world.broadphase = new CANNON.NaiveBroadphase();
+        this.physicsEngine.world.gravity.set( 0, -9.81 * 4, 0 );
         this.physicsEngine.world.defaultContactMaterial.friction = 0;
+        // this.physicsEngine.world.defaultContactMaterial.restitution = 0;
 
-        CANNON = this.physicsEngine.CANNON;
-
-        let groundMaterial = new Material( 'groundMaterial' );
-        let wheelMaterial = new Material( 'wheelMaterial' );
-        let contactMaterial = new ContactMaterial( groundMaterial, wheelMaterial, {
-            friction: 0.3,
+        let groundMaterial = new CANNON.Material( 'groundMaterial' );
+        let wheelMaterial = new CANNON.Material( 'wheelMaterial' );
+        let contactMaterial = new CANNON.ContactMaterial( groundMaterial, wheelMaterial, {
+            friction: .3,
             restitution: 0,
             contactEquationStiffness: 1000,
         } );

@@ -129,7 +129,25 @@ export default class ResourceManager {
         let scene = this.renderer.scene;
         this.scene.traverse( o => {
             if ( o.name === 'Box' || o.name === 'PointLight' ) {
-                scene.add( o.clone() );
+
+                let object = o.clone();
+                let scale = new THREE.Vector2(
+                    object.scale.x,
+                    object.scale.z
+                );
+
+                let texture = this.getTexture( 'metal' );
+                texture.repeat = scale;
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+
+                object.material = new THREE.MeshPhysicalMaterial( {
+                    bumpMap: texture,
+                    roughness: .25,
+                    metalness: .15,
+                    bumpScale: .15,
+                } );
+
+                scene.add( object );
             }
         } );
     }

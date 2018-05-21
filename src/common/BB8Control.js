@@ -13,7 +13,7 @@ const BRAKE_FORCE = 1000000;
 
 export default class BB8Control {
 
-    constructor( options ) {
+    constructor ( options ) {
         CANNON = options.CANNON;
     }
 
@@ -22,40 +22,39 @@ export default class BB8Control {
      * @param bb8 {BB8}
      * @param input {String} up, down, left, right
      */
-    controlVehicle( bb8, input ) {
+    controlVehicle ( bb8, input ) {
         let vehicle = bb8.vehicleObj;
-        let body = bb8.physicsObj;
-        let o3d = bb8.object3D;
+
+        vehicle.applyEngineForce( 0, 0 );
+        vehicle.applyEngineForce( 0, 1 );
+        vehicle.setSteeringValue( 0, 0 );
+        vehicle.setSteeringValue( 0, 1 );
 
         switch ( input ) {
-            // second parameter (0) is the wheel index
-
             case 'up':
-                // console.log( 'engine+' );
-                vehicle.applyEngineForce( -MAX_FORCE, 2 );
-                vehicle.applyEngineForce( -MAX_FORCE, 3 );
-                body.applyForce( new CANNON.Vec3( 0, 100, 0 ), new CANNON.Vec3() );
+                vehicle.applyEngineForce( -MAX_FORCE, 0 );
+                vehicle.applyEngineForce( -MAX_FORCE, 1 );
                 break;
 
             case 'down':
-                // console.log( 'engine-' );
-                vehicle.applyEngineForce( MAX_FORCE, 2 );
-                vehicle.applyEngineForce( MAX_FORCE, 3 );
+                vehicle.applyEngineForce( MAX_FORCE / 4, 0 );
+                vehicle.applyEngineForce( MAX_FORCE / 4, 1 );
                 break;
 
             case 'left':
-                // console.log( 'steer<' );
                 vehicle.setSteeringValue( MAX_STEERING_VALUE, 0 );
                 vehicle.setSteeringValue( MAX_STEERING_VALUE, 1 );
                 break;
 
             case 'right':
-                // console.log( 'steer>' );
                 vehicle.setSteeringValue( -MAX_STEERING_VALUE, 0 );
                 vehicle.setSteeringValue( -MAX_STEERING_VALUE, 1 );
                 break;
 
-            // todo consider adding braking
+            case 'space':
+                vehicle.setBrake( BRAKE_FORCE, 0 );
+                vehicle.setBrake( BRAKE_FORCE, 1 );
+                break;
         }
     }
 
