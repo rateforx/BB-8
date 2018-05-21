@@ -21,7 +21,7 @@ export default class BB8 extends PhysicalObject {
      * @param {Object} options
      * @param {Object} props
      */
-    constructor( gameEngine, options, props ) {
+    constructor ( gameEngine, options, props ) {
         super( gameEngine, options, props );
         this.class = BB8;
         this.gameEngine = gameEngine;
@@ -30,24 +30,27 @@ export default class BB8 extends PhysicalObject {
         // todo! on add to world
     }
 
-    addObject3D() {
+    addObject3D () {
         // get the Object3D
         let rm = this.gameEngine.renderer.resourceManager;
         this.object3D = rm.getObject( 'bb8' ).clone();
 
-        let material = this.object3D.children[0].material;
+        console.log( this.object3D );
+
+        let material = this.object3D.children[ 0 ].material;
         let hue = Math.floor( Math.random() * 360 );
         material.map = rm.getTexture( 'bb8_DIFFUSE' );
         material.normalMap = rm.getTexture( 'bb8_NORMAL' );
-        material.color = new THREE.Color (`hsl( ${hue}, 100%, 90% )` );
+        material.color = new THREE.Color( `hsl( ${hue}, 100%, 90% )` );
 
         this.gameEngine.renderer.add( this.object3D );
     }
 
-    addPhysicsObj() {
+    addPhysicsObj () {
         let shape = new CANNON.Sphere( 2 );
         let body = new CANNON.Body( {
             mass: 18,
+            linearDamping: .1,
             position: new CANNON.Vec3(
                 this.position.x,
                 this.position.y,
@@ -70,7 +73,7 @@ export default class BB8 extends PhysicalObject {
     /**
      * @param gameEngine {TheGameEngine}
      * */
-    onAddToWorld( gameEngine ) {
+    onAddToWorld ( gameEngine ) {
         this.addPhysicsObj();
         if ( !gameEngine.isServer() ) {
             this.addObject3D();
@@ -87,24 +90,27 @@ export default class BB8 extends PhysicalObject {
                     targetObject: this.object3D,
                     cameraPosition: new THREE.Vector3( 10, 10, 0 ),
                     fixed: false,
-                    stiffness: .1,
+                    stiffness: .05,
                     matchRotation: false,
-                });
+                } );
                 camera.setTarget( 'Player' );
 
+                this.yawObj = new THREE.Object3D();
+                this.pitchObj = new THREE.Object3D();
+
+                document.addEventListener( 'mousemove', this.onMouseMove, false );
                 // connect minimap camera to player too
-                let mini = this.gameEngine.renderer.minimap.camera;
-                mini.position.copy( this.object3D.position );
-                mini.position.y = 50;
-                mini.lookAt( this.object3D.position );
+                // let mini = this.gameEngine.renderer.minimap.camera;
+                // mini.position.copy( this.object3D.position );
+                // mini.position.y = 50;
+                // mini.lookAt( this.object3D.position );
             }
         }
     }
 
     adjustMovement() {
         this.refreshFromPhysics();
-
-        if ( ( !this.gameEngine.isServer() ) ) {
+        if ( (!this.gameEngine.isServer()) ) {
 
             if ( typeof this.object3D !== 'undefined' ) {
                 this.object3D.position.set(
@@ -112,8 +118,8 @@ export default class BB8 extends PhysicalObject {
                     this.physicsObj.position.y,
                     this.physicsObj.position.z,
                 );
-                let body = this.object3D.children[0];
-                this.object3D.quaternion.set(
+                let body = this.object3D.children[ 0 ];
+                body.quaternion.set(
                     this.physicsObj.quaternion.x,
                     this.physicsObj.quaternion.y,
                     this.physicsObj.quaternion.z,
@@ -123,11 +129,11 @@ export default class BB8 extends PhysicalObject {
         }
     }
 
-    toString() {
+    toString () {
         return `BB8::${super.toString()}`;
     }
 
-    destroy() {
+    destroy () {
         this.gameEngine.physicsEngine.removeObject( this.physicsObj );
         this.gameEngine.renderer.remove( this.object3D );
     }

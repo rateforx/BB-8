@@ -32,3 +32,26 @@ body {
     position: fixed;
     bottom: 0;
 }
+
+#overlay {
+    position: fixed;
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    opacity: .9;
+
+}
+
+#overlay span {
+    text-align: center;
+    display: block;
+    width: 100%;
+    height: 10%;
+    margin: 45% 0;
+    color: white;
+    size: 3em;
+    font-family: Impact;
+    font-weight: bold;
+    pointer-events: none;
+}

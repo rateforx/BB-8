@@ -57,21 +57,12 @@ export default class TheRenderer extends Renderer {
             this.scene.background = new THREE.Color( 0 );
             this.updateViewportSize();
 
-
             // show cannon objects
-            if (this.DEBUG) {
+            if ( this.DEBUG ) {
                 window.CANNON = this.gameEngine.physicsEngine.CANNON;
                 window.THREE = this.THREE;
-                // let head = document.getElementsByTagName('head')[0];
-                // let script = document.createElement('script');
-                // script.type = 'text/javascript';
-                // script.src = '/CannonDebugRenderer.js';
-                // script.onload = () => {
-                    this.cannonDebugRenderer = new THREE.CannonDebugRenderer( this.scene, this.gameEngine.physicsEngine.world );
-                // };
-                // head.appendChild(script);
+                this.cannonDebugRenderer = new THREE.CannonDebugRenderer( this.scene, this.gameEngine.physicsEngine.world );
             }
-
 
             this.resourceManager = new ResourceManager( this );
             this.resourceManager.once( 'resourcesLoaded', () => {
@@ -80,7 +71,7 @@ export default class TheRenderer extends Renderer {
             this.loadResources();
 
             // this.camera = new THREE.PerspectiveCamera (
-            this.camera = new THREE.TargetCamera (
+            this.camera = new THREE.TargetCamera(
                 60, // fov
                 this.w / this.h, // aspect
                 .1, // near
@@ -148,10 +139,13 @@ export default class TheRenderer extends Renderer {
         this.minimap = new Minimap( this );
         this.MINIMAP = true;
 
-        // this.pointLight = new THREE.PointLight( 0xffffff );
-        // this.add( this.pointLight );
-
         this.gui = new GUI( this );
+
+        // let overlay = $( '#overlay' );
+        // overlay.click( () => {
+        //     overlay.remove();
+        //     $( 'canvas' )[0].requestPointerLock();
+        // } );
     }
 
     /**

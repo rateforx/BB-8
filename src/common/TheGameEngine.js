@@ -168,8 +168,31 @@ export default class TheGameEngine extends GameEngine {
         super.processInput( inputData, playerId );
         let playerObj = this.world.queryObject( { playerId } );
         if ( playerObj ) {
-            StrafeControl.accelerate( playerObj, inputData.input );
-            playerObj.refreshFromPhysics();
+
+            let movement = [
+                'up', 'down',
+                'left', 'right',
+                'upright', 'upleft',
+                'downright', 'downleft'
+            ];
+            let aim = [
+                'yaw', 'pitch'
+            ];
+
+            if ( movement.includes( inputData.input ) ) {
+                // StrafeControl.accelerate( playerObj, inputData.input );
+                StrafeControl.move( playerObj, inputData.input );
+                playerObj.refreshFromPhysics();
+            }
+
+            if ( aim.includes( inputData.input ) ) {
+                StrafeControl.aim( playerObj, {
+                    axis: inputData.input === 'x' ? 'yaw' : 'pitch',
+                    value: inputData.input
+                } );
+                playerObj.refreshFromPhysics();
+            }
+
         }
     }
 
@@ -189,8 +212,6 @@ export default class TheGameEngine extends GameEngine {
             contactEquationStiffness: 1000,
         } );
 
-        // this.physicsEngine.world.addMaterial( groundMaterial );
-        // this.physicsEngine.world.addMaterial( wheelMaterial );
         this.physicsEngine.world.addContactMaterial( contactMaterial );
     }
 }

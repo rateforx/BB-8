@@ -1,6 +1,6 @@
 import ClientEngine from "lance/ClientEngine";
 import TheRenderer from "./TheRenderer";
-import KeyboardControls from "./KeyboardControls";
+import MouseAndKeyboardControls from "./MouseAndKeyboardControls";
 
 const $ = require( 'jquery' );
 const THREE = require( 'three/build/three' );
@@ -54,7 +54,7 @@ export default class TheClientEngine extends ClientEngine {
     onRendererReady () {
         this.connect();
 
-        this.controls = new KeyboardControls( this.renderer );
+        this.controls = new MouseAndKeyboardControls( this.renderer );
 
         $( '#joinGame' ).click( () => this.socket.emit( 'requestRestart' ) );
         $( '#reconnect' ).click( () => window.location.reload() );
@@ -62,17 +62,9 @@ export default class TheClientEngine extends ClientEngine {
 
     preStep () {
         if ( this.controls ) {
-            let input = this.controls.activeInput;
+            let input = this.controls.inputs;
 
-            if ( input.up ) {
-                this.sendInput( 'up', { movement: true } );
-            } else if ( input.down ) {
-                this.sendInput( 'down', { movement: true } );
-            } else if ( input.left ) {
-                this.sendInput( 'left', { movement: true } );
-            } else if ( input.right ) {
-                this.sendInput( 'right', { movement: true } );
-            } else if ( input.up && input.left ) {
+            if ( input.up && input.left ) {
                 this.sendInput( 'upleft', { movement: true } );
             } else if ( input.up && input.right ) {
                 this.sendInput( 'upright', { movement: true } );
@@ -80,8 +72,22 @@ export default class TheClientEngine extends ClientEngine {
                 this.sendInput( 'downleft', { movement: true } );
             } else if ( input.down && input.right ) {
                 this.sendInput( 'downright', { movement: true } );
+            } else if ( input.up ) {
+                this.sendInput( 'up', { movement: true } );
+            } else if ( input.down ) {
+                this.sendInput( 'down', { movement: true } );
+            } else if ( input.left ) {
+                this.sendInput( 'left', { movement: true } );
+            } else if ( input.right ) {
+                this.sendInput( 'right', { movement: true } );
             }
 
+            if ( input.yaw !== 0 ) {
+                this.sendInput( 'yaw', { value: input.yaw } );
+            }
+            if ( input.pitch !== 0 ) {
+                this.sendInput( 'pitch', { value: input.pitch } );
+            }
         }
     }
 

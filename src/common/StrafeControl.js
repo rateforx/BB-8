@@ -1,14 +1,14 @@
 const CANNON = require( 'cannon' );
 
 const IMPULSE = 1;
-const VELOCITY = 5;
-const MAX_VELOCITY = 15;
+const VELOCITY = .5;
+const MAX_VELOCITY = 5;
 
 export default class StrafeControl {
 
     /**
      * @param o {BB8}
-     * @param direction
+     * @param direction {String}
      */
     static move ( o, direction ) {
         let directionVector = new CANNON.Vec3();
@@ -36,12 +36,14 @@ export default class StrafeControl {
         // set the object velocity
         let velocityVector = directionVector.scale( VELOCITY );
         o.physicsObj.velocity.vadd( velocityVector, o.physicsObj.velocity );
-        o.physicsObj.angularVelocity.vadd( velocityVector, o.physicsObj.angularVelocity );
+
+        let angularVelocityVector = new CANNON.Vec3( 0, velocityVector.y, 0 );
+        o.physicsObj.angularVelocity.vadd( angularVelocityVector, o.physicsObj.angularVelocity );
     }
 
     /**
      * @param o {BB8}
-     * @param direction
+     * @param direction {String}
      */
     static accelerate ( o, direction ) {
         let currentVelocity = o.physicsObj.velocity.length();
@@ -77,10 +79,17 @@ export default class StrafeControl {
     }
 
     /**
-     * @param physicalObj {Body}
-     * @return {Vec3}
+     * @param o {BB8}
+     * @param rotation {Object}
      */
-    static getXZPlaneOrientation ( physicalObj ) {
-        return physicalObj.quaternion.vmult( new CANNON.Vec3( 0, 0, 1 ) );
+    static aim ( o, rotation ) {
+        switch ( rotation.axis ) {
+            case 'yaw':
+                o.physicsObj.quaternion.x += rotation.value;
+                break;
+            // case 'pitch':
+            //     o.physicsObj.quaternion.y += rotation.value;
+            //     break;
+        }
     }
 }
