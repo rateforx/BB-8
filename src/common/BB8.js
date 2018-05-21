@@ -41,7 +41,7 @@ export default class BB8 extends PhysicalObject {
         let hue = Math.floor( Math.random() * 360 );
         material.map = rm.getTexture( 'bb8_DIFFUSE' );
         material.normalMap = rm.getTexture( 'bb8_NORMAL' );
-        material.color = new THREE.Color( `hsl( ${hue}, 100%, 90% )` );
+        // material.color = new THREE.Color( `hsl( ${hue}, 100%, 90% )` );
 
         this.gameEngine.renderer.add( this.object3D );
     }
