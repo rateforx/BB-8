@@ -1,7 +1,7 @@
 const CANNON = require( 'cannon' );
 
 const IMPULSE = 1;
-const VELOCITY = .5;
+const VELOCITY = 2;
 const MAX_VELOCITY = 5;
 
 export default class StrafeControl {
@@ -36,9 +36,6 @@ export default class StrafeControl {
         // set the object velocity
         let velocityVector = directionVector.scale( VELOCITY );
         o.physicsObj.velocity.vadd( velocityVector, o.physicsObj.velocity );
-
-        let angularVelocityVector = new CANNON.Vec3( 0, velocityVector.y, 0 );
-        o.physicsObj.angularVelocity.vadd( angularVelocityVector, o.physicsObj.angularVelocity );
     }
 
     /**

@@ -49,8 +49,8 @@ export default class BB8 extends PhysicalObject {
     addPhysicsObj () {
         let shape = new CANNON.Sphere( 2 );
         let body = new CANNON.Body( {
-            mass: 18,
-            linearDamping: .1,
+            mass: 100,
+            linearDamping: .9,
             position: new CANNON.Vec3(
                 this.position.x,
                 this.position.y,
@@ -65,6 +65,10 @@ export default class BB8 extends PhysicalObject {
             type: CANNON.Body.DYNAMIC,
         } );
         body.addShape( shape );
+        let head = new CANNON.Sphere( 1 );
+        body.addShape( head, new CANNON.Vec3( 0, 2.2, 0 ) );
+        body.fixedRotation = true;
+        body.updateMassProperties();
 
         this.physicsObj = body;
         this.gameEngine.physicsEngine.world.add( body );

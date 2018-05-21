@@ -200,14 +200,14 @@ export default class TheGameEngine extends GameEngine {
         this.physicsEngine = new CannonPhysicsEngine( { gameEngine: this } );
         this.physicsEngine.world.broadphase = new CANNON.SAPBroadphase( this.physicsEngine.world );
         // this.physicsEngine.world.broadphase = new CANNON.NaiveBroadphase();
-        this.physicsEngine.world.gravity.set( 0, -9.81 * 4, 0 );
+        this.physicsEngine.world.gravity.set( 0, -100, 0 );
         this.physicsEngine.world.defaultContactMaterial.friction = 0;
         // this.physicsEngine.world.defaultContactMaterial.restitution = 0;
 
         let groundMaterial = new CANNON.Material( 'groundMaterial' );
         let wheelMaterial = new CANNON.Material( 'wheelMaterial' );
         let contactMaterial = new CANNON.ContactMaterial( groundMaterial, wheelMaterial, {
-            friction: .3,
+            friction: 1,
             restitution: 0,
             contactEquationStiffness: 1000,
         } );
