@@ -19,7 +19,7 @@ const io = SocketIO( requestHandler );
 const gameEngine = new TheGameEngine( { traceLevel: Trace.TRACE_NONE } );
 const serverEngine = new TheServerEngine( io, gameEngine, { debug: {}, updateRate: 6, timeoutInterval: 20 } );
 
-server.set('views', path.join(__dirname, './dist/'));
+server.set( 'views', path.join( __dirname, './dist/' ) );
 server.set( 'view engine', 'pug' );
 
 server.get( '/gameStatus', ( req, res ) => {

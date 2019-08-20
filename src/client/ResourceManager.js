@@ -128,7 +128,7 @@ export default class ResourceManager {
     transferObjects( ) {
         let scene = this.renderer.scene;
         this.scene.traverse( o => {
-            if ( o.name === 'Box' || o.name === 'PointLight' ) {
+            if ( o.name === 'Box' ) {
 
                 let object = o.clone();
                 let scale = new THREE.Vector2(
@@ -148,6 +148,8 @@ export default class ResourceManager {
                 } );
 
                 scene.add( object );
+            } else if ( o.name === 'PointLight' ) {
+                scene.add( o.clone() );
             }
         } );
     }

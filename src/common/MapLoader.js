@@ -158,7 +158,7 @@ export default class MapLoader {
         this.scenes[ name ] = {};
 
         let url = this.gameEngine.isServer() ?
-            `http://localhost:80/maps/${name}.json` :
+            `http://localhost:${process.env.PORT}/maps/${name}.json` :
             `/maps/${name}.json`;
 
         // this.loadingManager.onLoad = () => {

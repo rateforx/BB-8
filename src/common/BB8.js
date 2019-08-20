@@ -1,5 +1,4 @@
 import PhysicalObject from 'lance/serialize/PhysicalObject';
-import Serializer from "lance/serialize/Serializer";
 
 const THREE = require( 'three/build/three' );
 
@@ -7,10 +6,7 @@ const OBJLoader = require( 'three-obj-loader' );
 OBJLoader( THREE );
 
 const MASS = 180;
-const Utils = require( '../client/Utils' );
-
-const Vec3 = require( 'cannon/src/math/Vec3' );
-const Quaternion = require( 'cannon/src/math/Quaternion' );
+const LINEAR_DAMPING = 0;
 
 const CANNON = require( 'cannon' );
 
@@ -26,8 +22,7 @@ export default class BB8 extends PhysicalObject {
         this.class = BB8;
         this.gameEngine = gameEngine;
 
-        this.health = 100;
-        // todo! on add to world
+        // this.health = 100;
     }
 
     addObject3D () {
@@ -49,8 +44,8 @@ export default class BB8 extends PhysicalObject {
     addPhysicsObj () {
         let shape = new CANNON.Sphere( 2 );
         let body = new CANNON.Body( {
-            mass: 100,
-            linearDamping: .9,
+            mass: MASS,
+            linearDamping: LINEAR_DAMPING,
             position: new CANNON.Vec3(
                 this.position.x,
                 this.position.y,
@@ -112,7 +107,7 @@ export default class BB8 extends PhysicalObject {
         }
     }
 
-    adjustMovement() {
+    adjustMovement () {
         this.refreshFromPhysics();
         if ( (!this.gameEngine.isServer()) ) {
 

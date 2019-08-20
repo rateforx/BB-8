@@ -98,7 +98,8 @@ export default class TheGameEngine extends GameEngine {
 
     loadScene () {
         console.log( 'Loading scene' );
-        let name = 'hang-on2';
+        // let name = 'hang-on2';
+        let name = 'bowling';
 
         this.mapLoader.on( name, json => {
             Map.setJSON( json );
@@ -200,9 +201,9 @@ export default class TheGameEngine extends GameEngine {
         this.physicsEngine = new CannonPhysicsEngine( { gameEngine: this } );
         this.physicsEngine.world.broadphase = new CANNON.SAPBroadphase( this.physicsEngine.world );
         // this.physicsEngine.world.broadphase = new CANNON.NaiveBroadphase();
-        this.physicsEngine.world.gravity.set( 0, -100, 0 );
-        this.physicsEngine.world.defaultContactMaterial.friction = 0;
-        // this.physicsEngine.world.defaultContactMaterial.restitution = 0;
+        this.physicsEngine.world.gravity.set( 0, -10, 0 );
+        // this.physicsEngine.world.defaultContactMaterial.friction = 1;
+        this.physicsEngine.world.defaultContactMaterial.restitution = 0;
 
         let groundMaterial = new CANNON.Material( 'groundMaterial' );
         let wheelMaterial = new CANNON.Material( 'wheelMaterial' );

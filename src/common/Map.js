@@ -1,5 +1,6 @@
 import Serializer from 'lance/serialize/Serializer';
 import PhysicalObject from 'lance/serialize/PhysicalObject';
+import Crate from './Crate';
 
 const THREE = require( 'three/build/three' );
 THREE.Reflector = require( '../lib/Reflector' );
@@ -268,15 +269,14 @@ export default class Map extends PhysicalObject {
     generateBodiesFromObjects3D ( gameEngine ) {
         for( let i = 0; i < Map.json.object.children.length; i++ ) {
             let o = Map.json.object.children[ i ];
+            let matrix = new THREE.Matrix4();
+            matrix.fromArray( o.matrix );
+            let p = new THREE.Vector3();
+            let q = new THREE.Quaternion();
+            let s = new THREE.Vector3();
+            matrix.decompose( p, q, s );
 
             if ( o.type === "Mesh" && o.name === "Box" ) {
-                let matrix = new THREE.Matrix4();
-                matrix.fromArray( o.matrix );
-                let p = new THREE.Vector3();
-                let q = new THREE.Quaternion();
-                let s = new THREE.Vector3();
-                matrix.decompose( p, q, s );
-
                 let shape = new CANNON.Box( new CANNON.Vec3(
                     s.x / 2, // half width
                     s.y / 2, // half height
@@ -299,6 +299,32 @@ export default class Map extends PhysicalObject {
                 );
 
                 gameEngine.physicsEngine.world.add( body );
+            }
+
+            if ( o.type === 'Mesh' && o.name === 'Crate' ) {
+
+                let options = {};
+                let props = {
+                    position: {
+                        x: p.x,
+                        y: p.y,
+                        z: p.z,
+                    },
+                    quaternion: {
+                        x: q.x,
+                        y: q.y,
+                        z: q.z,
+                        w: q.w,
+                    },
+                    scale: {
+                        x: s.x,
+                        y: s.y,
+                        z: s.z,
+                    }
+                };
+                let crate = new Crate( gameEngine, options, props );
+
+                gameEngine.addObjectToWorld( crate );
             }
         }
     }
@@ -338,11 +364,7 @@ export default class Map extends PhysicalObject {
     }
 
     toString () {
-        let p = this.position.toString();
-        let v = this.velocity.toString();
-        let q = this.quaternion.toString();
-        let a = this.angularVelocity.toString();
-        return `Map::phyObj[${this.id}] player${this.playerId} Pos=${p} Vel=${v} Dir=${q} AVel=${a}`;
+        return `Map::${super.toString()}`;
     }
 
     destroy () {

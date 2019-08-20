@@ -1,18 +1,16 @@
 import TheClientEngine from './TheClientEngine';
 import TheGameEngine from '../common/TheGameEngine';
 
-// require( '../../dist/resources/sass/main.scss' );
-
 // options sent to both game engine and client engine
 const options = {
     traceLevel: 1000,
-    delayInputCount: 3,
+    delayInputCount: 2,
     scheduler: 'render-schedule',
     syncOptions: {
         sync: 'extrapolate',
         localObjBending: 0.6,
         remoteObjBending: 0.8,
-        bendingIncrements: 6
+        bendingIncrements: 3
     },
     autoConnect: false
 };

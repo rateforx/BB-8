@@ -1,8 +1,8 @@
 const CANNON = require( 'cannon' );
 
-const IMPULSE = 1;
-const VELOCITY = 2;
-const MAX_VELOCITY = 5;
+const IMPULSE = 1; // used for accelerate type movement
+const VELOCITY = 5; // used for linear type movement
+const MAX_VELOCITY = 10;
 
 export default class StrafeControl {
 
@@ -11,6 +11,11 @@ export default class StrafeControl {
      * @param direction {String}
      */
     static move ( o, direction ) {
+        let currentVelocity = o.physicsObj.velocity.length();
+        if ( currentVelocity > MAX_VELOCITY ) {
+            return;
+        }
+
         let directionVector = new CANNON.Vec3();
         let diag = 1 / Math.sqrt( 2 );
 

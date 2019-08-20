@@ -1,4 +1,5 @@
 import ServerEngine from "lance/ServerEngine";
+import os from 'os';
 
 export default class TheServerEngine extends ServerEngine {
 
@@ -64,7 +65,16 @@ export default class TheServerEngine extends ServerEngine {
     }
 
     gameStatus( statusQuery ) {
-        let statusString = super.gameStatus();
+
+        let statusString = {
+            numPlayers: Object.keys(this.connectedPlayers).length,
+            upTime: os.uptime(),
+            cpuLoad: 0,
+            memoryLoad: os.totalmem - os.freemem,
+            players: {}
+        };
+
+        // let statusString = super.gameStatus();
         if ( statusQuery && statusQuery.debug ) {
             let lanceStatus = JSON.parse( statusString );
             lanceStatus.log = this.gameEngine.log;

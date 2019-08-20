@@ -243,7 +243,8 @@ export default class TheRenderer extends Renderer {
     loadResources () {
         // scene
         this.resourceManager.loadTexture( 'metal/metal_BUMP.jpg', 'metal' );
-        this.resourceManager.loadScene( 'hang-on2' );
+        // this.resourceManager.loadScene( 'hang-on2' );
+        this.resourceManager.loadScene( 'bowling' );
         this.scene.background = this.resourceManager.loadCubeTexture( 'galaxy', 'galaxy' );
         // this.scene.background = THREE.Color( 0 );
         // BB8
@@ -260,9 +261,9 @@ export default class TheRenderer extends Renderer {
         // Minimap
         this.resourceManager.loadObject( 'phone.json', 'phone' );
         // Crate
-        // this.resourceManager.loadTexture( 'crate/crate_DIFFUSE.jpg', 'crate_DIFFUSE' );
-        // this.resourceManager.loadTexture( 'crate/crate_NORMAL.jpg', 'crate_NORMAL' );
-        // this.resourceManager.loadTexture( 'crate/crate_SPECULAR.jpg', 'crate_SPECULAR' );
-        // this.resourceManager.loadTexture( 'crate/crate_DISPLACE.jpg', 'crate_DISPLACE' );
+        this.resourceManager.loadTexture( 'crate/crate_DIFFUSE.jpg', 'crate_DIFFUSE' );
+        this.resourceManager.loadTexture( 'crate/crate_NORMAL.jpg', 'crate_NORMAL' );
+        this.resourceManager.loadTexture( 'crate/crate_SPECULAR.jpg', 'crate_SPECULAR' );
+        this.resourceManager.loadTexture( 'crate/crate_DISPLACE.jpg', 'crate_DISPLACE' );
     }
 }
