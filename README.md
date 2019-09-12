@@ -1,8 +1,3 @@
-# TheGame
-## School project
+# BB-8
 
-3D browser multiplier Node.js game.
-
-Node.js + Lance used as a game server.
-Three.js for 3D graphics.
-Cannon.js for physics.
+Implementation of lance.gg using three.js as 3D graphics engine and cannon.js for physics.
