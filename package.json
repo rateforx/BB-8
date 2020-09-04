@@ -20,7 +20,7 @@
     "jquery": "^3.4.0",
     "json-loader": "^0.5.4",
     "lance-gg": "github:lance-gg/lance#develop",
-    "node-sass": "^4.9.0",
+    "node-sass": "^4.13.1",
     "null-loader": "^0.1.1",
     "pug": "^2.0.3",
     "query-string": "^4.2.3",
