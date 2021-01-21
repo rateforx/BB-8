@@ -27,7 +27,7 @@
     "raw-loader": "^0.5.1",
     "sass-loader": "^4.1.1",
     "shader-particle-engine": "^1.0.6",
-    "socket.io": "^1.4.8",
+    "socket.io": "^2.4.0",
     "style-loader": "^0.13.1",
     "three": "^0.92.0",
     "three-collada-loader": "0.0.1",
