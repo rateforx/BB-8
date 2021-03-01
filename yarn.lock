@@ -6555,6 +6555,10 @@ three-stats@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/three-stats/-/three-stats-1.0.1.tgz#44ebdcf87d31760196d174e18366364fae172a63"
 
+three@^0.125.0:
+  version "0.125.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.125.0.tgz#19e922b9dc51ad0b706893aeee888de68e99850a"
+
 three@^0.84.0:
   version "0.84.0"
   resolved "https://registry.yarnpkg.com/three/-/three-0.84.0.tgz#95be85a55a0fa002aa625ed559130957dcffd918"
@@ -6562,10 +6566,6 @@ three@^0.84.0:
 three@^0.90.0:
   version "0.90.0"
   resolved "https://registry.yarnpkg.com/three/-/three-0.90.0.tgz#be478e7c0f82c5ae742c197db1e38e58b6190d1b"
-
-three@^0.92.0:
-  version "0.92.0"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.92.0.tgz#8d3d1f5af890e62da7f4cb45d20c09fa51057dcd"
 
 through2@^2.0.0:
   version "2.0.3"
