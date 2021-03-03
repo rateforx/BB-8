@@ -22,7 +22,7 @@
     "lance-gg": "github:lance-gg/lance#develop",
     "node-sass": "^4.9.0",
     "null-loader": "^0.1.1",
-    "pug": "^2.0.3",
+    "pug": "^3.0.1",
     "query-string": "^4.2.3",
     "raw-loader": "^0.5.1",
     "sass-loader": "^4.1.1",
