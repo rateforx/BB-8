@@ -6734,7 +6734,11 @@ underscore@1.6.0, underscore@~1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.6.0.tgz#8b38b10cacdef63337b8b24e4ff86d45aea529a8"
 
-underscore@^1.9.0, underscore@jashkenas/underscore:
+underscore@^1.12.1:
+  version "1.12.1"
+  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.12.1.tgz#7bb8cc9b3d397e201cf8553336d262544ead829e"
+
+underscore@jashkenas/underscore:
   version "1.9.0"
   resolved "https://codeload.github.com/jashkenas/underscore/tar.gz/4bd6f69b33179517d4ff9f6020637d6f336c5f99"
 
